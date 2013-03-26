@@ -1,0 +1,77 @@
+" loading pathogen at runtime as it's bundled
+runtime bundle/vim-pathogen/autoload/pathogen.vim
+call pathogen#infect()
+Helptags 
+" Rebuild the helptags
+call pathogen#helptags()
+
+" We want syntax colorize
+syntax on
+
+filetype plugin indent on
+
+"Set Mapleader 
+let mapleader = "-" 
+let g:mapleader = "-" 
+
+" Disable vi-compatibility
+set nocompatible   
+" Always show the statusline 
+set laststatus=2  
+" Necessary to show unicode glyphs
+set encoding=utf-8 
+
+" Explicitly tell vim that the terminal supports 256 colors
+set t_Co=256 
+
+" Mejorar la imagen 
+let g:Powerline_symbols="unicode"
+"let g:Powerline_symbols="fancy"
+
+"Theme 
+"colo gummybears
+colo molokai
+
+" Bring Bufferlist easily
+map bl :Bufferlist<CR>
+
+"NERDTree
+map <Leader>, :NERDTreeToggle<cr>
+
+
+"Disable virtual bell
+set vb t_vb="
+
+"Buffer shortcuts
+map <Leader>f :b#<cr>
+
+"Make backspace work
+set backspace=2
+
+set autoread
+set hidden
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+set smartindent
+map <Leader>c :let @/ = ""<cr>
+syntax enable
+set nu
+set textwidth=0 " No annoying word wrapping
+set tabstop=2
+set shiftwidth=2
+set expandtab
+set guifont="Liberation Mono":h10
+filetype on
+filetype plugin on
+set nocp
+autocmd FileType python set omnifunc=pythoncomplete#Complete
+autocmd FileType javascript set omnifunc=javascriptcomplete#CompleteJS
+autocmd FileType html set omnifunc=htmlcomplete#CompleteTags
+autocmd FileType css set omnifunc=csscomplete#CompleteCSS
+autocmd FileType xml set omnifunc=xmlcomplete#CompleteTags
+autocmd FileType php set omnifunc=phpcomplete#CompletePHP
+" Replaced by clang_complete for now
+" autocmd FileType c set omnifunc=ccomplete#CompleteCpp
+autocmd FileType ChangeLog set tw=80
