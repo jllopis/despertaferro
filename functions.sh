@@ -92,23 +92,23 @@ function backup_dotfiles(){
 
 function clean_old(){
   for file in ${FILES2BACK[@]}; do
-    rm -i $HOME/.$file
+    rm $HOME/.$file
   done
 
   for file in ${FILEISLINK[@]}; do
-    rm -i $HOME/.$file
+    rm $HOME/.$file
   done
 
   for dir in ${DIRS2BACK[@]}; do
-    rm -rfi $HOME/.$dir
+    rm -rf $HOME/.$dir
   done
 
   for dir in ${DIRISLINK[@]}; do
-    rm -i $HOME/.$dir
+    rm $HOME/.$dir
   done
 
   if [ -r $HOME/.gvimrc ]; then
-    rm -i $HOME/.gvimrc
+    rm $HOME/.gvimrc
   fi
 }
 
