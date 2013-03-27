@@ -32,13 +32,13 @@ fi
 load_and_handle_errors $HOME/.dotfiles.d/colors.bash
 
 echo -e "${notice}Proceeding to load environment${text_reset}"
-for f in $HOME/.dotfiles.d/bashrc.d/*.bash; do
+for f in $HOME/.bashrc.d/*.bash; do
   load_and_handle_errors $f
 done
 unset f
 
 # Load a last file with user config, if it exist
-if [ -r $HOME/.dotfiles.d/bashrc.d/lastrc ]; then
+if [ -r $HOME/.bashrc.d/lastrc ]; then
   load_and_handle_errors $HOME/.dotfiles.d/bashrc.d/lastrc
 fi
 
