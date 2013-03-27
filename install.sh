@@ -5,7 +5,7 @@ TIMESTAMP=`date -u +%Y%m%dT%H%M%SZ`
 LOGFILE=$INSTALL_DIR/install-$TIMESTAMP.log
 # This is the list of packages that should be in your system or installed
 # Note that in OSX Homebrew will always be insalled if not present
-PACKAGES=('git' 'vim')
+PACKAGES=('git' 'vim' 'go')
 FILES=`find despertaferro -type f -maxdepth 1 -exec basename {} \;`
 DIRS=`find despertaferro -type d -maxdepth 1 -exec basename {} \;`
 DOTDIRS=()

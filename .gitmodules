@@ -34,3 +34,6 @@
 [submodule "despertaferro/vim/bundle/ctrlp.vim"]
 	path = despertaferro/vim/bundle/ctrlp.vim
 	url = https://github.com/kien/ctrlp.vim
+[submodule "despertaferro/vim/bundle/vim-golang"]
+	path = despertaferro/vim/bundle/vim-golang
+	url = https://github.com/jnwhiteh/vim-golang.git
