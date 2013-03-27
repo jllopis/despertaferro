@@ -11,8 +11,8 @@ syntax on
 filetype plugin indent on
 
 "Set Mapleader 
-let mapleader = "-" 
-let g:mapleader = "-" 
+let mapleader = "," 
+let g:mapleader = "," 
 
 " Disable vi-compatibility
 set nocompatible   
@@ -24,20 +24,20 @@ set encoding=utf-8
 " Explicitly tell vim that the terminal supports 256 colors
 set t_Co=256 
 
-" Mejorar la imagen 
-let g:Powerline_symbols="unicode"
-"let g:Powerline_symbols="fancy"
-
 "Theme 
-"colo gummybears
-colo molokai
+let g:solarized_termcolors=256
+if has('gui_running')
+    set background=light
+else
+    set background=dark
+endif
+colorscheme solarized
 
 " Bring Bufferlist easily
 map bl :Bufferlist<CR>
 
 "NERDTree
 map <Leader>, :NERDTreeToggle<cr>
-
 
 "Disable virtual bell
 set vb t_vb="
