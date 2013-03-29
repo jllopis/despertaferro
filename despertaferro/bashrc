@@ -41,7 +41,7 @@ unset f
 
 # Load a last file with user config, if it exist
 if [ -r $HOME/.bashrc.d/lastrc ]; then
-  load_and_handle_errors $HOME/.dotfiles.d/bashrc.d/lastrc
+  load_and_handle_errors $HOME/.bashrc.d/lastrc
 fi
 
 echo -n ${text_reset}

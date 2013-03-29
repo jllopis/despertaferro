@@ -2,11 +2,6 @@
 runtime bundle/vim-pathogen/autoload/pathogen.vim
 call pathogen#infect()
 Helptags 
-" Rebuild the helptags
-call pathogen#helptags()
-
-" We want syntax colorize
-syntax on
 
 filetype plugin indent on
 
@@ -14,15 +9,71 @@ filetype plugin indent on
 let mapleader = "," 
 let g:mapleader = "," 
 
-" Disable vi-compatibility
-set nocompatible   
-" Always show the statusline 
-set laststatus=2  
-" Necessary to show unicode glyphs
-set encoding=utf-8 
+" We want syntax colorize
+syntax on
+set nocompatible        " Disable vi-compatibility
+set laststatus=2        " Always show the statusline 
+set nobackup
+set nowritebackup
+set notimeout
+set ttimeout
+set ttimeoutlen=10
+set noswapfile
+set encoding=utf-8      " Necessary to show unicode glyphs
+set history=50
+set ruler               " show the cursor position all the time
+set showcmd             " display incomplete commands
+set incsearch           " do incremental searching
+set hlsearch
+set ignorecase
+set smartcase
+set smartindent
+set laststatus=2        " Always display the status line
+set backspace=2         " Make backspace work
+set autoread
+set hidden
+set vb t_vb="           " Disable virtual bell
+set nu
+set textwidth=0         " No annoying word wrapping
+set tabstop=2
+set shiftwidth=2
+set expandtab
+set nocp
+set t_Co=256            " Explicitly tell vim that the terminal supports 256 colors
+" Fix backspace
+set backspace=indent,eol,start
+fixdel
 
-" Explicitly tell vim that the terminal supports 256 colors
-set t_Co=256 
+" Send more characters for redraws
+set ttyfast
+
+" Use Bash as shell
+set shell=/usr/local/bin/bash
+
+" Enable mouse use in all modes
+set mouse=a
+set ttymouse=xterm2
+
+" Display extra whitespace
+set list listchars=tab:»·,trail:·
+" Clipboard fix for OsX
+set clipboard=unnamed
+
+" Numbers
+set number
+set numberwidth=2
+
+"Folding
+set foldmethod=indent
+set foldlevelstart=99
+
+" Autocompletion options
+set wildmode=list:longest,list:full
+set complete=.,w,b
+
+" Tags
+let Tlist_Ctags_Cmd = "/usr/local/bin/ctags -R --exclude=.git --exclude=log -f ./.tags *"
+set tags+=.tags
 
 "Theme 
 let g:solarized_termcolors=256
@@ -33,45 +84,24 @@ else
 endif
 colorscheme solarized
 
+set guifont="Liberation Mono":h10
+
 " Bring Bufferlist easily
 map bl :Bufferlist<CR>
 
 "NERDTree
 map <Leader>, :NERDTreeToggle<cr>
 
-"Disable virtual bell
-set vb t_vb="
-
-"Buffer shortcuts
-map <Leader>f :b#<cr>
-
-"Make backspace work
-set backspace=2
-
-set autoread
-set hidden
-set hlsearch
-set incsearch
-set ignorecase
-set smartcase
-set smartindent
+map <Leader>f :b#<cr>            "Buffer shortcuts
 map <Leader>c :let @/ = ""<cr>
-syntax enable
-set nu
-set textwidth=0 " No annoying word wrapping
-set tabstop=2
-set shiftwidth=2
-set expandtab
-set guifont="Liberation Mono":h10
+
 filetype on
-filetype plugin on
-set nocp
-autocmd FileType python set omnifunc=pythoncomplete#Complete
-autocmd FileType javascript set omnifunc=javascriptcomplete#CompleteJS
-autocmd FileType html set omnifunc=htmlcomplete#CompleteTags
-autocmd FileType css set omnifunc=csscomplete#CompleteCSS
-autocmd FileType xml set omnifunc=xmlcomplete#CompleteTags
-autocmd FileType php set omnifunc=phpcomplete#CompletePHP
+filetype plugin indent on
+
 " Replaced by clang_complete for now
 " autocmd FileType c set omnifunc=ccomplete#CompleteCpp
 autocmd FileType ChangeLog set tw=80
+
+source $HOME/.vim/autocommands.vim
+source $HOME/.vim/shortcuts.vim
+
