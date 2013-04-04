@@ -3,6 +3,9 @@ runtime bundle/vim-pathogen/autoload/pathogen.vim
 call pathogen#infect()
 Helptags 
 
+" Add GOPATH to vim path
+set path +=$GOPATH/src/**
+
 filetype plugin indent on
 
 "Set Mapleader 
