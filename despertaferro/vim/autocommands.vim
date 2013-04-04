@@ -10,3 +10,6 @@ autocmd BufRead *
       \ exec "set path^=".s:tempPath |
       \ exec "set path^=".s:default_path
 
+" Run gofmt when save a go source file
+autocmd BufWritePost *.go !gofmt -w %
+
