@@ -242,8 +242,6 @@ function configure_osx(){
   # We will going to set visibility for dotfiles. This will show the .DS_Store 
   # everywhere. We will install Asepsis to better manage them (http://asepsis.binaryage.com)
   install_asepsis
-# OJO! ELIMINAR!
-return
 
   # Menu bar: disable transparency
   defaults write NSGlobalDomain AppleEnableMenuBarTransparency -bool false
