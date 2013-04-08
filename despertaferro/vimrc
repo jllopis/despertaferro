@@ -43,9 +43,18 @@ set shiftwidth=2
 set expandtab
 set nocp
 set t_Co=256            " Explicitly tell vim that the terminal supports 256 colors
+set cursorline          " highlight current line
+" Session options for version greater than 7
+if version >= 700
+  set sessionoptions=blank,buffers,curdir,folds,globals,help,localoptions,options,resize,tabpages,winsize,winpos
+endif
+
 " Fix backspace
 set backspace=indent,eol,start
 fixdel
+
+" Toggle paste mode
+set pastetoggle=<F2>
 
 " Send more characters for redraws
 set ttyfast
@@ -105,6 +114,9 @@ filetype plugin indent on
 " autocmd FileType c set omnifunc=ccomplete#CompleteCpp
 autocmd FileType ChangeLog set tw=80
 
+source $HOME/.vim/functions.vim
 source $HOME/.vim/autocommands.vim
 source $HOME/.vim/shortcuts.vim
+
+
 

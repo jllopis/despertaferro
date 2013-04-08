@@ -13,3 +13,5 @@ autocmd BufRead *
 " Run gofmt when save a go source file
 autocmd BufWritePost *.go !gofmt -w %
 
+"autocmd BufWinLeave * silent! mkview "make vim save view (state) (folds, cursor, etc)
+"autocmd BufWinEnter * silent! loadview "make vim load view (state) (folds, cursor, etc)
