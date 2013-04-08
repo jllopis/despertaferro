@@ -37,3 +37,9 @@
 [submodule "despertaferro/vim/bundle/vim-golang"]
 	path = despertaferro/vim/bundle/vim-golang
 	url = https://github.com/jnwhiteh/vim-golang.git
+[submodule "despertaferro/vim/bundle/snipmate"]
+	path = despertaferro/vim/bundle/snipmate
+	url = https://github.com/msanders/snipmate.vim.git
+[submodule "despertaferro/vim/bundle/supertab"]
+	path = despertaferro/vim/bundle/supertab
+	url = https://github.com/ervandew/supertab.git
