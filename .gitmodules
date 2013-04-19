@@ -19,9 +19,6 @@
 [submodule "despertaferro/vim/bundle/vim-buffergator"]
 	path = despertaferro/vim/bundle/vim-buffergator
 	url = https://github.com/jeetsukumaran/vim-buffergator.git
-[submodule "despertaferro/vim/bundle/tagbar"]
-	path = despertaferro/vim/bundle/tagbar
-	url = https://github.com/majutsushi/tagbar.git
 [submodule "despertaferro/vim/bundle/vim-colors-solarized"]
 	path = despertaferro/vim/bundle/vim-colors-solarized
 	url = https://github.com/altercation/vim-colors-solarized.git
@@ -37,9 +34,9 @@
 [submodule "despertaferro/vim/bundle/vim-golang"]
 	path = despertaferro/vim/bundle/vim-golang
 	url = https://github.com/jnwhiteh/vim-golang.git
-[submodule "despertaferro/vim/bundle/snipmate"]
-	path = despertaferro/vim/bundle/snipmate
-	url = https://github.com/msanders/snipmate.vim.git
 [submodule "despertaferro/vim/bundle/supertab"]
 	path = despertaferro/vim/bundle/supertab
 	url = https://github.com/ervandew/supertab.git
+[submodule "despertaferro/vim/bundle/snipmate.vim"]
+	path = despertaferro/vim/bundle/snipmate.vim
+	url = https://github.com/msanders/snipmate.vim.git
