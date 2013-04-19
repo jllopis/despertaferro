@@ -8,6 +8,7 @@
 Session.vim
 .netrwhist
 *~
+sessions/
 
 # Go Ignores
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
