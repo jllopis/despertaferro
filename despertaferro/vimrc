@@ -88,13 +88,14 @@ let Tlist_Ctags_Cmd = "/usr/local/bin/ctags -R --exclude=.git --exclude=log -f .
 set tags+=.tags
 
 "Theme 
-let g:solarized_termcolors=256
-if has('gui_running')
-    set background=light
-else
-    set background=dark
-endif
-colorscheme solarized
+"let g:solarized_termcolors=256
+"if has('gui_running')
+"    set background=light
+"else
+"    set background=dark
+"endif
+"colorscheme solarized
+colorscheme vividchalk
 
 set guifont="Liberation Mono":h10
 
