@@ -72,10 +72,12 @@
 
   # Credit an author on the latest commit
   credit = "!f() { git commit --amend --author \"$1 <$2>\" -C HEAD; }; f"
+  # Credit an author on all the commits: credit_all <Old Email> <New Name> <New Email>
+  creditall = "!f() { git filter-branch --commit-filter 'if [ \"$GIT_COMMITTER_EMAIL\" = \"$1\" ]; then GIT_COMMITTER_NAME=\"$2\"; GIT_AUTHOR_NAME=\"$2\"; GIT_COMMITTER_EMAIL=\"$3\"; GIT_AUTHOR_EMAIL=\"$3\"; git commit-tree \"$@\"; else git commit-tree \"$@\"; fi' HEAD; }; f"
 
 [merge]
   conflictstyle = diff3
 
-[user]
-	name = Joan Llopis
-	email = jllopis@acb.es
+[pull]
+  rebase = true
+
