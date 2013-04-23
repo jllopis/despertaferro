@@ -204,7 +204,8 @@ install_or_update(){
       brew_checkinstall $pack
     elif [[ "$THIS_OS" == "linux" ]]; then
       # Install linux package (rpm based only)
-      yum -y install $pack
+      log "Trying to install $pack"
+      sudo yum -y install $pack
     else
       # Not supported
       log_err "Your system is not supported. Can't install the packages"
