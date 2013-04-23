@@ -30,7 +30,7 @@ if [[ -d "$HOME/bin" ]]; then
 fi
 
 # Load colors
-load_and_handle_errors $HOME/.dotfiles.d/colors.bash
+load_and_handle_errors $HOME/.bashrc.d/colors.bash
 
 echo -e "${notice}Proceeding to load environment${text_reset}"
 for f in $HOME/.bashrc.d/*.bash; do
