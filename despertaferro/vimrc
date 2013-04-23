@@ -69,7 +69,12 @@ set ttymouse=xterm2
 " Display extra whitespace
 set list listchars=tab:»·,trail:·
 " Clipboard fix for OsX
-set clipboard=unnamed
+"set clipboard=unnamed
+" Don't do it inside tmux or
+" it do not past with simple p (but ""p)
+if $TMUX == ''
+  set clipboard+=unnamed
+endif
 
 " Numbers
 set number

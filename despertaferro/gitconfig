@@ -78,6 +78,10 @@
 [merge]
   conflictstyle = diff3
 
+[user]
+  name = Joan Llopis
+  email = jllopis@acb.es
+
 [pull]
   rebase = true
 
