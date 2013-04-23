@@ -1,6 +1,10 @@
 # Set this alias for the colors to work ok
 alias tmux="TERM=screen-256color-bce tmux"
 
+
+# Add tab completion for teamocil sessions based on ~/.teamocil/*.yml
+[ -e "$HOME/.teamocil" ] && complete -o "default" -o "nospace" -W "$(basename -a ~/.teamocil/*.yml | cut -d "." -f 1 | tr ' ' '\n')" mux teamocil
+
 # Couple functions to better work with development sessions
 # Works because bash automatically trims by assigning to variables and by 
 # passing arguments
