@@ -1,7 +1,7 @@
 # Load full config
 # Simplify your bash PATH management
 # From: http://www.moosechips.com/2011/01/bash-pathmunge/
-EGREP=`type -p egrep`
+EGREP=`type -P egrep`
 pathmunge () {
         if ! echo $PATH | $EGREP -q "(^|:)$1($|:)" ; then
            if [ "$2" = "after" ] ; then
