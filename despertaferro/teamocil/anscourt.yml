@@ -1,0 +1,11 @@
+session:
+  name: "ans-court"
+  windows:
+    - name: "edició"
+      root: "~/devel/ANS/storm/ans-court"
+      layout: df59,270x57,0,0{135x57,0,0,6,134x57,136,0[134x28,136,0,8,134x28,136,29,9]}
+      panes:
+        - cmd: "vim -c 'normal ,sr'"
+          focus: true
+        - cmd: "git pull"
+        - cmd: ""

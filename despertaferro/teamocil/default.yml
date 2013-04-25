@@ -1,0 +1,10 @@
+session:
+  name: "default"
+  windows:
+    - name: "edició"
+      root: "~/"
+      panes:
+        - cmd: ""
+          focus: true
+        - cmd:
+          - "top"
