@@ -79,8 +79,8 @@
   conflictstyle = diff3
 
 [user]
-  name = Joan Llopis
-  email = jllopis@acb.es
+  name = <myname>
+  email = <mymail>
 
 [pull]
   rebase = true
