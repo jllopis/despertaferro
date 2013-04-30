@@ -11,7 +11,7 @@ autocmd BufRead *
       \ exec "set path^=".s:default_path
 
 " Run gofmt when save a go source file
-autocmd BufWritePost *.go !gofmt -w %
+autocmd BufWritePost *.go !gofmt -tabs=false -tabwidth=4 -w %
 
 "autocmd BufWinLeave * silent! mkview "make vim save view (state) (folds, cursor, etc)
 "autocmd BufWinEnter * silent! loadview "make vim load view (state) (folds, cursor, etc)
