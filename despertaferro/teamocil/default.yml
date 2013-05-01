@@ -4,7 +4,7 @@ session:
     - name: "edició"
       root: "~/"
       panes:
-        - cmd: ""
+        - cmd: "echo 'Welcome!'"
           focus: true
         - cmd:
           - "top"

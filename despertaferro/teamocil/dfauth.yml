@@ -11,6 +11,4 @@ session:
         - cmd: "vim -c 'normal ,sr'"
           focus: true
         - cmd: "git pull"
-        - cmd:
-          - ""
         - cmd: "go env"

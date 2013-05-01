@@ -1,5 +1,6 @@
 # Set this alias for the colors to work ok
-alias tmux="TERM=screen-256color-bce tmux"
+#alias tmux="TERM=screen-256color-bce tmux"
+alias tmux="TERM=xterm-256color tmux"
 
 
 # Add tab completion for teamocil sessions based on ~/.teamocil/*.yml
