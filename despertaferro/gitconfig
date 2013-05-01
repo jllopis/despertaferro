@@ -75,12 +75,15 @@
   # Credit an author on all the commits: credit_all <Old Email> <New Name> <New Email>
   creditall = "!f() { git filter-branch --commit-filter 'if [ \"$GIT_COMMITTER_EMAIL\" = \"$1\" ]; then GIT_COMMITTER_NAME=\"$2\"; GIT_AUTHOR_NAME=\"$2\"; GIT_COMMITTER_EMAIL=\"$3\"; GIT_AUTHOR_EMAIL=\"$3\"; git commit-tree \"$@\"; else git commit-tree \"$@\"; fi' HEAD; }; f"
 
+  # UndoCommit. Undo last commit
+  uc = reset --soft HEAD^
+
 [merge]
   conflictstyle = diff3
 
 [user]
-  name = <myname>
-  email = <mymail>
+  name  =
+  email =
 
 [pull]
   rebase = true
