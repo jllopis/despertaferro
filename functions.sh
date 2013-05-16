@@ -217,14 +217,14 @@ install_or_update(){
 function install_asepsis(){
   log "Installing Asepsis"
   curl -OL http://downloads.binaryage.com/Asepsis-1.3.dmg
-  if [[ -s "Asepsis-1.3.dmp" ]]; then
+  if [[ -s "Asepsis-1.3.dmg" ]]; then
     hdiutil mount Asepsis-1.3.dmg
   else
     log_err "Asepsis could not be downloaded"
     return
   fi
   sudo installer -pkg /Volumes/Asepsis/Asepsis.mpkg -target /
-  hdiutil umount /Volumes/Asepsis
+  hdiutil unmount /Volumes/Asepsis
 }
 
 function configure_osx(){
@@ -243,7 +243,7 @@ function configure_osx(){
   # We will going to set visibility for dotfiles. This will show the .DS_Store 
   # everywhere. We will install Asepsis to better manage them (http://asepsis.binaryage.com)
   install_asepsis
-
+return
   # Menu bar: disable transparency
   defaults write NSGlobalDomain AppleEnableMenuBarTransparency -bool false
 
