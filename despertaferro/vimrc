@@ -114,7 +114,7 @@ map <Leader>f :b#<cr>            "Buffer shortcuts
 map <Leader>c :let @/ = ""<cr>
 
 filetype on
-filetype plugin indent on
+filetype plugin on
 
 " Replaced by clang_complete for now
 " autocmd FileType c set omnifunc=ccomplete#CompleteCpp
