@@ -2,10 +2,6 @@
 #alias tmux="TERM=screen-256color-bce tmux"
 alias tmux="TERM=xterm-256color tmux"
 
-
-# Add tab completion for teamocil sessions based on ~/.teamocil/*.yml
-[ -e "$HOME/.teamocil" ] && complete -o "default" -o "nospace" -W "$(basename -a ~/.teamocil/*.yml | cut -d "." -f 1 | tr ' ' '\n')" mux teamocil
-
 # Couple functions to better work with development sessions
 # Works because bash automatically trims by assigning to variables and by 
 # passing arguments
@@ -39,9 +35,9 @@ function mux() {
     tmux attach-session -t $1
     echo -e "${success}Done!${text_reset}"
   else
-    # session does not exits. Create with layout...
+    # session does not exits. Create ...
     echo -e "${attention}Runnig tmux in a new session $1${text_reset}"
-    tmux new-session -s $1 "teamocil $1"
+    tmux new-session -s $1
     echo -e "${success}Done!${text_reset}"
   fi
 }
