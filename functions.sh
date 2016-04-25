@@ -1,22 +1,36 @@
 # Functions
+TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+
 function log() {
-  echo -e "${information}$1${text_reset}"
-  echo -e $@ >> $LOGFILE
+  echo -e "${information}${TIMESTAMP} - $1${text_reset}"
+  echo -e "${TIMESTAMP} - $@" >> $LOGFILE
 }
 
 function log_warn() {
-  echo -e "${attention}$1${text_reset}"
-  echo -e $@ >> $LOGFILE
+  echo -e "${TIMESTAMP} - ${attention}$1${text_reset}"
+  echo -e "${TIMESTAMP} - $@" >> $LOGFILE
 }
 
 function log_err () {
-  echo -e "${failure}$1${text_reset}"
-  echo -e $@ >> $LOGFILE
+  echo -e "${failure}${TIMESTAMP} - $1${text_reset}"
+  echo -e "${TIMESTAMP} - $@" >> $LOGFILE
 }
 
 function log_ok () {
-  echo -e "${success}$1${text_reset}"
-  echo -e $@ >> $LOGFILE
+  echo -e "${success}${TIMESTAMP} - $1${text_reset}"
+  echo -e "${TIMESTAMP} - $@" >> $LOGFILE
+}
+
+function show_help () {
+	echo "${despertaferro}"
+	echo ""
+	echo "Available modules:"
+	for m in ${MODULES}; do
+		printf "  ${notice}%-15s${text_reset} %s\n" ${mod} "$(${mod}_help)"
+	done
+	echo ""
+	echo "Use:"
+	echo "  ${notice}./install.sh ${component}module [module]${text_reset}"
 }
 
 function get_existing_dotfiles(){
@@ -49,7 +63,7 @@ function backup_dotfiles(){
   BACKUP_FILE=$HOME/despertaferro_backup-$TIMESTAMP.tar
 
   get_existing_dotfiles
-  
+
   if [[ ${#FILES2BACK[@]} -gt 0 ]]; then
     for file in ${FILES2BACK[@]} ; do
       log "Backing up ${filename}$file"
