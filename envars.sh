@@ -1,1 +1,1 @@
-GO_VERSION=go1.6.2
+GO_VERSION=go1.8.1
