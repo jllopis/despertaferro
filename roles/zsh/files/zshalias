@@ -1,3 +1,24 @@
 alias ls='ls --color=auto'
+alias l='ls -CF'
+alias ll='ls -l'
+alias la='ls -la'
+
 alias myip="curl http://ipecho.net/plain; echo"
+
+alias -g ...='../..'
+alias -g ....='../../..'
+alias -g .....='../../../..'
+
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+alias vim='nvim'
+alias vi='nvim'
+alias svim='sudoedit'
+alias dvim="vim -u /usr/share/nvim/archlinux.vim" # nvim with default config
+alias nvimc='rm -I $VIMCONFIG/swap/*'             # clean nvim swap file
+alias nvimcu='rm -I $VIMCONFIG/undo/*'            # clean the vim undo
+alias nviml='nvim -w $VIMCONFIG/vimlog "$@"'      # log the keystrokes
+alias nvimn='nvim --noplugin -u NONE'             # launch nvim without any plugin or config
 
