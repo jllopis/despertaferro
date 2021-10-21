@@ -1,0 +1,26 @@
+- include_vars: "{{ ansible_distribution }}.yml"
+  tags: always
+
+- name: tmux | install and config
+  block:
+      - name: tmux | install zsh
+        tags: tmux,shell
+        become: true
+        package:
+            name:
+                - tmux
+
+      - name: tmux | copy tmux configuration files
+        tags: tmux
+        ansible.builtin.copy:
+            src: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+            owner: "{{ ansible_user_id }}"
+            group: "{{ ansible_user_gid }}"
+            mode: 0644
+        with_items:
+            - { src: 'tmux.conf', dest: '{{ ansible_user_dir }}/.tmux.conf' }
+
+  rescue:
+      - set_fact: task_failed=true
+
