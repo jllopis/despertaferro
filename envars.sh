@@ -1,1 +1,0 @@
-GO_VERSION=go1.12.7

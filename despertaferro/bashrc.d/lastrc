@@ -1,4 +1,0 @@
-# Custom user configuration.
-# This file will be loaded the last
-
-echo -e "${warn}All Done${text_reset}"
