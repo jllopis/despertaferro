@@ -1,35 +1,34 @@
 - include_vars: "{{ ansible_distribution }}.yml"
   tags: always
 
-  tasks:
-    - name: zsh | install and configure zsh
-      block:
-        - name: zsh | install zsh
-          tags: zsh,shell
-          package:
-              name:
-                  - zsh
+- name: zsh | install and config
+  block:
+      - name: zsh | install zsh
+        tags: zsh,shell
+        package:
+            name:
+                - zsh
 
-        - name: zsh | chsh for user {{ ansible_user_id }}
-          tags: zsh,shell
-          become: true
-          user:
-              name: "{{ ansible_user_id }}"
-              shell: /bin/zsh
+      - name: zsh | chsh for user {{ ansible_user_id }}
+        tags: zsh,shell
+        become: true
+        user:
+            name: "{{ ansible_user_id }}"
+            shell: /bin/zsh
 
-        - name: zsh | copy ZSH configuration files
-          tags: zsh,shell
-          ansible.builtin.copy:
-              src: "zsh/{{ item.src }}"
-              dest: "{{ item.dest }}"
-              owner: "{{ ansible_user_id }}"
-              group: "{{ ansible_user_gid }}"
-              mode: 0644
-          with_items:
-              - { src: 'zshrc', dest: '{{ ansible_user_dir }}/.zshrc' }
-              - { src: 'zshenv', dest: '{{ ansible_user_dir }}/.config/zsh/zshenv'}
-              - { src: 'zshalias', dest: '{{ ansible_user_dir }}/.config/zsh/zshalias'}
+      - name: zsh | copy ZSH configuration files
+        tags: zsh,shell
+        ansible.builtin.copy:
+            src: "zsh/{{ item.src }}"
+            dest: "{{ item.dest }}"
+            owner: "{{ ansible_user_id }}"
+            group: "{{ ansible_user_gid }}"
+            mode: 0644
+        with_items:
+            - { src: 'zshrc', dest: '{{ ansible_user_dir }}/.zshrc' }
+            - { src: 'zshenv', dest: '{{ ansible_user_dir }}/.config/zsh/zshenv'}
+            - { src: 'zshalias', dest: '{{ ansible_user_dir }}/.config/zsh/zshalias'}
 
-      rescue:
-          - set_fact: task_failed=true
+  rescue:
+      - set_fact: task_failed=true
 
