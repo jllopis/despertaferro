@@ -1,6 +1,58 @@
+# zstyle pattern for the completion
+# :completion:<function>:<completer>:<command>:<argument>:<tag>
+
+# Should be called before compinit
+zmodload zsh/complist
+
+# Use hjlk in menu selection (during completion)
+# Doesn't work well with interactive mode
+bindkey -M menuselect 'h' vi-backward-char
+bindkey -M menuselect 'k' vi-up-line-or-history
+bindkey -M menuselect 'j' vi-down-line-or-history
+bindkey -M menuselect 'l' vi-forward-char
+
+bindkey -M menuselect '^xg' clear-screen
+bindkey -M menuselect '^xi' vi-insert                      # Insert
+bindkey -M menuselect '^xh' accept-and-hold                # Hold
+bindkey -M menuselect '^xn' accept-and-infer-next-history  # Next
+bindkey -M menuselect '^xu' undo                           # Undo
+
 # Use modern completion system
 autoload -Uz compinit
 compinit
+
+_comp_options+=(globdots) # With hidden files
+
+# setopt GLOB_COMPLETE      # Show autocompletion menu with globs
+setopt MENU_COMPLETE        # Automatically highlight first element of completion menu
+setopt AUTO_LIST            # Automatically list choices on ambiguous completion.
+setopt COMPLETE_IN_WORD     # Complete from both ends of a word.
+
+# Ztyle pattern
+# :completion:<function>:<completer>:<command>:<argument>:<tag>
+
+# Define completers
+zstyle ':completion:*' completer _extensions _complete _approximate
+
+# Use cache for commands using cache
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh/.zcompcache"
+# Complete the alias when _expand_alias is used as a function
+zstyle ':completion:*' complete true
+
+zle -C alias-expension complete-word _generic
+bindkey '^A' alias-expension
+zstyle ':completion:alias-expension:*' completer _expand_alias
+
+# Use cache for commands which use it
+
+# Allow you to select in a menu
+zstyle ':completion:*' menu select
+
+# Autocomplete options for cd instead of directory stack
+zstyle ':completion:*' complete-options true
+
+zstyle ':completion:*' file-sort modification
 
 zstyle ':completion:*' auto-description 'specify: %d'
 zstyle ':completion:*' completer _expand _complete _correct _approximate
