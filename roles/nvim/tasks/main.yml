@@ -1,0 +1,26 @@
+- include_vars: "{{ ansible_distribution }}.yml"
+  tags: always
+
+- name: nvim | install and config
+  block:
+      - name: nvim | install zsh
+        tags: nvim,shell
+        become: true
+        package:
+            name:
+                - nvim
+
+      - name: nvim | copy nvim configuration files
+        tags: nvim
+        ansible.builtin.copy:
+            src: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+            owner: "{{ ansible_user_id }}"
+            group: "{{ ansible_user_gid }}"
+            mode: 0644
+        with_items:
+            - { src: 'nvim.conf', dest: '{{ ansible_user_dir }}/.config/nvim/init.vim' }
+
+  rescue:
+      - set_fact: task_failed=true
+
