@@ -54,10 +54,6 @@ if [ -f '/home/jllopis/google-cloud-sdk/path.zsh.inc' ]; then . '/home/jllopis/g
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/jllopis/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/jllopis/google-cloud-sdk/completion.zsh.inc'; fi
 
-# Set the PATH
-export PATH=~/go/bin:$PATH
-
-export PATH=/home/jllopis/.pyenv/versions/3.7.2/bin:$PATH
-
 # Include configuration files
 if [ -f ~/.config/zsh/alias.zsh ]; then source ~/.config/zsh/alias.zsh; fi
+if [ -f ~/.config/zsh/funcs.zsh ]; then source ~/.config/zsh/funcs.zsh; fi
