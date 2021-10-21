@@ -17,6 +17,12 @@
             name: "{{ ansible_user_id }}"
             shell: /bin/zsh
 
+      - name: zsh | create .config/zsh dir
+        tags: zsh,shell,config
+        file:
+            path: "{{ ansible_user_dir }}/.config/zsh"
+            state: directory
+
       - name: zsh | copy ZSH configuration files
         tags: zsh,shell
         ansible.builtin.copy:
