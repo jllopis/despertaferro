@@ -8,24 +8,11 @@ set -e
 TIMESTAMP=`date -u +%Y%m%dT%H%M%SZ`
 LOGFILE=${PWD}/install-$TIMESTAMP.log
 USERNAME=$USER
-MODULES=()
-
-# Include files
-if [[ -r "envars.sh" ]]; then source envars.sh; fi
-if [[ -r "colors.sh" ]]; then source colors.sh; fi
-if [[ -r "functions.sh" ]]; then source functions.sh; else log_error "functions.sh not found. Can't continue :("; exit 1; fi
 
 # This is the list of packages that should be in your system or installed
 # Note that in OSX Homebrew will always be insalled if not present
-PACKAGES=('git' 'ctags' 'tmux')
-FILES=`find despertaferro -maxdepth 1 -type f -exec basename {} \;`
-DIRS=`find despertaferro -maxdepth 1 -type d -exec basename {} \;`
-DOTDIRS=()
-DIRS2BACK=()
-DIRISLINK=()
-DOTFILES=()
-FILES2BACK=()
-FILEISLINK=()
+PACKAGES=('git' 'ansible')
+PACMAN=""
 
 function main() {
 	# Select OS
@@ -42,66 +29,42 @@ function main() {
 	;;
 	esac
 
-	if [[ ${THIS_OS} == "osx" ]]; then
+	if [[ ${THIS_OS} == "linux" ]]; then
 		LOCATOR="which -s"
+        case `lsb_release -is` in
+            "Ubuntu")
+                PACMAN="apt"
+                ;;
+            *)
+                echo "[\033[31mERROR\033[0m] Cannot determine your Linux distro. lsb_release -is = ${`lsb_release -is`}"
+                ;;
+        esac
 	else
 		LOCATOR="type -p"
 	fi
 
-	# Load modules
-	for mod in $(ls -A1 modules/*.sh); do
-		if [[ -r ${mod} ]]; then
-			log "Loading module ${mod}"
-			source ${mod}
-			mod=$(basename ${mod})
-			mod=${mod%.*}
-			MODULES+=(mod)
-		fi
-	done
+	printf "Installation started at %s\n" $TIMESTAMP
+	printf "\tOS: %s\n" $THIS_OS
+	printf "\tUSERNAME: %s\n" $USERNAME
+	printf "\tHOME DIR: %s\n" $HOME
 	
-	local cmd=$1
+    # Prepare Ansible install
+    sudo apt update
+    sudo apt install software-properties-common
+    sudo add-apt-repository --yes --update ppa:ansible/ansible
 
-	if [[ -z "$cmd" ]]; then
-		cmd="new"
-	fi
+    # Install required packages
+    for p in "${PACKAGES[@]}"
+    do
+        echo "[EXEC] sudo ${PACMAN} install -y ${p}"
+        sudo $PACMAN install -y --no-install-recommends ${p}
+    done
 
-	log "Installation started at $TIMESTAMP"
-	log "${information}OS: ${package}$THIS_OS${text_reset}"
-	log "${information}USERNAME: ${package}$USERNAME${text_reset}"
-	log "${information}HOME DIR: ${package}$HOME${text_reset}"
-	log "${information}INSTALL DIR: ${package}$INSTALL_DIR${text_reset}"
-	
-	if [[ -r "modules/${cmd}.sh" ]]; then
-		source modules/${cmd}.sh;
-		install_${cmd} "${@:2}"
-	else
-		log_err "command \"$cmd\" not recognized"
-		show_help
-		exit 1
-	fi
-
-	# TODO. Copy despertaferro to $HOME/.despertaferro
-	
-#	# Backup files and dirs
-#	backup_dotfiles
-#	
-#	# Delete files and directories
-#	clean_old
-#	
-#	# Configure OS
-#	if [[ "$THIS_OS" == "osx" ]]; then configure_osx; fi
-#	
-#	# Install packages
-#	install_or_update
-#	
-#	# Update submdules
-#	vim_install_submodules
-#	
-#	# Link files
-#	link_dotfiles
-	
 	echo ""
-	log_ok "${despertaferro} ${success}is now installed."
+	printf "[\033[32mOK\033[0m] System requirements installed!"
+
+    # Launch ansible-pull
+    ansible-pull -U https://github.com/jllopis/despertaferro.git -C ansible-pull
 }
 
 # Ask for the administrator password upfront
