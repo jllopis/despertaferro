@@ -20,9 +20,9 @@
           tags: zsh,shell
           ansible.builtin.copy:
               src: "zsh/{{ item.src }}"
-              dest: {{ item.dest }}
-              owner: {{ ansible_user_id }}
-              group: {{ ansible_user_gid }}
+              dest: "{{ item.dest }}"
+              owner: "{{ ansible_user_id }}"
+              group: "{{ ansible_user_gid }}"
               mode: 0644
           with_items:
               - { src: 'zshrc', dest: '{{ ansible_user_dir }}/.zshrc' }
