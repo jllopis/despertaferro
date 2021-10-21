@@ -4,6 +4,7 @@
 - block:
     - import_tasks: cleanup_group.yml
     - import_tasks: utilities_group.yml
+    - import_tasks: development_group.yml
 
     - import_tasks: clock.yml
     - import_tasks: apt.yml

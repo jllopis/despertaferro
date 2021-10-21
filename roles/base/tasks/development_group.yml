@@ -1,0 +1,9 @@
+- name: system | development | install utility packages
+  tags: dev,development,packages
+  package:
+      name:
+          - git
+          - tig
+          - mysql-client
+          - postgresql-client
+      state: latest
