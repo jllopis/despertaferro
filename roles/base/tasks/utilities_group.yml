@@ -1,0 +1,29 @@
+- name: system | utilities | install utility packages
+  tags: packages,system,settings
+  package:
+      state: latest
+      name:
+          - at
+          - colordiff
+          - curl
+          - "{{ dns_utils_package }}"
+          - htop
+          - iotop
+          - "{{ lm_sensors_package }}"
+          - lsof
+          - mc
+          - mosh
+          - ncdu
+          - neofetch
+          - net-tools
+          - "{{ nfs_client_package }}"
+          - nmap
+          - ranger
+          - "{{ rename_package }}"
+          - rsync
+          - silversearcher-ag
+          - sshfs
+          - traceroute
+          - tree
+          - wget
+          - whois
