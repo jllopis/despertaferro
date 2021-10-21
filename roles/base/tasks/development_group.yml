@@ -4,6 +4,7 @@
       name:
           - git
           - tig
+          - jq
           - mysql-client
           - postgresql-client
       state: latest
