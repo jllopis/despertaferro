@@ -34,7 +34,7 @@
         with_items:
             - { src: 'zshrc', dest: '{{ ansible_user_dir }}/.zshrc' }
             - { src: 'zshenv', dest: '{{ ansible_user_dir }}/.config/zsh/zshenv'}
-            - { src: 'zshalias', dest: '{{ ansible_user_dir }}/.config/zsh/zshalias'}
+            - { src: 'zshalias', dest: '{{ ansible_user_dir }}/.config/zsh/alias.zsh'}
 
   rescue:
       - set_fact: task_failed=true

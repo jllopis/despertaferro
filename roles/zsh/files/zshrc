@@ -60,4 +60,4 @@ export PATH=~/go/bin:$PATH
 export PATH=/home/jllopis/.pyenv/versions/3.7.2/bin:$PATH
 
 # Include configuration files
-if [ -f ~/.config/zsh/zshalias ]; then source ~/.config/zsh/zshalias; fi
+if [ -f ~/.config/zsh/alias.zsh ]; then source ~/.config/zsh/alias.zsh; fi
