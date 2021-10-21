@@ -1,5 +1,6 @@
 - include_vars: "{{ ansible_distribution }}.yml"
   tags: always
+  become: true
 
 - block:
     - import_tasks: cleanup_group.yml

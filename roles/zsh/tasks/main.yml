@@ -5,6 +5,7 @@
   block:
       - name: zsh | install zsh
         tags: zsh,shell
+        become: true
         package:
             name:
                 - zsh
