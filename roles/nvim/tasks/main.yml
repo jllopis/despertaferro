@@ -7,7 +7,7 @@
         tags: nvim
         become: true
         ansible.builtin.apt_repository:
-            repo: ppa:nginx/unstable
+            repo: ppa:neovim-ppa/stable
             update_cache: yes
 
       - name: nvim | install neovim
