@@ -4,21 +4,24 @@
 - name: nvim | install and config
   block:
       - name: nvim | add stable repository from PPA and install its signing key on Ubuntu target
+        tags: nvim
         become: true
         ansible.builtin.apt_repository:
             repo: ppa:nginx/stable
+            update_cache: yes
 
       - name: nvim | install neovim
-        tags: nvim,shell
+        tags: nvim
         become: true
         apt:
             update_cache: yes
-            name:
+            pkg:
                 - fonts-firacode
                 - universal-ctags
                 - nvim
 
       - name: nvim | set alternatives
+        tags: nvim
         become: true
         alternatives:
             link: /usr/bin/vim
