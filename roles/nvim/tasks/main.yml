@@ -16,8 +16,11 @@
         apt:
             update_cache: yes
             pkg:
+                - software-properties-common
                 - fonts-firacode
                 - universal-ctags
+                - python3-dev
+                - python3-pip
                 - python3-neovim
                 - neovim
 
@@ -27,6 +30,22 @@
         alternatives:
             link: /usr/bin/vim
             name: vim
+            path: /usr/bin/nvim
+
+      - name: nvim | set alternatives
+        tags: nvim
+        become: true
+        alternatives:
+            link: /usr/bin/vi
+            name: vi
+            path: /usr/bin/nvim
+
+      - name: nvim | set alternatives
+        tags: nvim
+        become: true
+        alternatives:
+            link: /usr/bin/editor
+            name: editor
             path: /usr/bin/nvim
 
       - name: nvim | copy nvim configuration files
