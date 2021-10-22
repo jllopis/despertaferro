@@ -15,6 +15,7 @@
         become: true
         apt:
             update_cache: yes
+            state: latest
             pkg:
                 - software-properties-common
                 - fonts-firacode
