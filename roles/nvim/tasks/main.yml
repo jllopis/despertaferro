@@ -18,7 +18,7 @@
             pkg:
                 - fonts-firacode
                 - universal-ctags
-                - nvim
+                - neovim
 
       - name: nvim | set alternatives
         tags: nvim
