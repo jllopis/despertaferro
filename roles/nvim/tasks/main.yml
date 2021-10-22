@@ -4,6 +4,7 @@
 - name: nvim | install and config
   block:
       - name: nvim | add stable repository from PPA and install its signing key on Ubuntu target
+        become: true
         ansible.builtin.apt_repository:
             repo: ppa:nginx/stable
 
