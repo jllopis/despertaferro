@@ -64,7 +64,7 @@ function main() {
 	printf "[\033[32mOK\033[0m] System requirements installed!"
 
     # Launch ansible-pull
-    ansible-pull -U https://github.com/jllopis/despertaferro.git -C ansible-pull
+    ansible-pull -U https://github.com/jllopis/despertaferro.git
 }
 
 # Ask for the administrator password upfront
