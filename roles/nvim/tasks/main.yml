@@ -49,6 +49,12 @@
             name: editor
             path: /usr/bin/nvim
 
+      - name: nvim | create .config/nvim/lua dir
+        tags: nvim,config
+        file:
+          path: "{{ ansible_user_dir }}/.config/nvim/lua"
+          state: directory
+
       - name: nvim | copy nvim configuration files
         tags: nvim
         ansible.builtin.copy:
@@ -58,7 +64,12 @@
             group: "{{ ansible_user_gid }}"
             mode: 0644
         with_items:
-            - { src: 'nvim.conf', dest: '{{ ansible_user_dir }}/.config/nvim/init.vim' }
+            - { src: 'init.lua', dest: '{{ ansible_user_dir }}/.config/nvim/init.lua' }
+            - { src: 'lua/autocommands.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/autocommands.lua' }
+            - { src: 'lua/basic.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/basic.lua' }
+            - { src: 'lua/lightline.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/lightline.lua' }
+            - { src: 'lua/maps.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/maps.lua' }
+            - { src: 'lua/plugins.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/plugins.lua' }
 
   rescue:
       - set_fact: task_failed=true
