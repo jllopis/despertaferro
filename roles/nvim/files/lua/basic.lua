@@ -28,6 +28,9 @@ vim.opt.ffs = 'unix,dos,mac'
 -- Use zsh shell
 vim.g.shell = "/bin/zsh"
 
+-- Use xclip to copy and paste
+vim.opt.clipboard:append('unnamedplus')
+
 -------------------------------------------------------------
 -- => VIM user interface
 ---------------------------------------------------------------
