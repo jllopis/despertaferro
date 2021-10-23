@@ -85,6 +85,7 @@
             - { src: 'lua/plugin-nvim-tree.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/pluginsConfig/nvim-tree.lua' }
             - { src: 'lua/plugin-telescope.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/pluginsConfig/telescope.lua' }
             - { src: 'lua/plugin-bufferline.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/pluginsConfig/bufferline.lua' }
+            - { src: 'lua/plugin-autopairs.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/pluginsConfig/autopairs.lua' }
 
       - name: nvim | install plugins
         command: vim +PackerInstall +PackerCompile +qall

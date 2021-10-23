@@ -9,4 +9,5 @@ local config = vim.fn['stdpath']('config')..'/lua/'
 dofile(config..'pluginsConfig/nvim-tree.lua')
 dofile(config..'pluginsConfig/telescope.lua')
 dofile(config..'pluginsConfig/bufferline.lua')
+dofile(config..'pluginsConfig/autopairs.lua')
 
