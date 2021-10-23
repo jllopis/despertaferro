@@ -20,7 +20,7 @@ vim.g.netrw_winsize = 25
 vim.g.netrw_localrmdir = 'rm -r'
 
 --vim.cmd 'scriptencoding utf-8'
-vim.opt.encoding = 'utf8'
+vim.opt.encoding = 'utf-8'
 vim.g.fileencoding = 'utf-8'
 -- Use Unix as the standard file type
 vim.opt.ffs = 'unix,dos,mac'
