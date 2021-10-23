@@ -32,7 +32,7 @@
             group: "{{ ansible_user_gid }}"
             mode: 0644
         with_items:
-            - { src: 'zshrc', dest: '{{ ansible_user_dir }}/.zshrc' }
+            - { src: 'zshrc', dest: '{{ ansible_user_dir }}/.config/zsh/.zshrc' }
             - { src: 'zshenv', dest: '{{ ansible_user_dir }}/.config/zsh/zshenv'}
             - { src: 'zshalias', dest: '{{ ansible_user_dir }}/.config/zsh/alias.zsh'}
             - { src: 'zshfuncs', dest: '{{ ansible_user_dir }}/.config/zsh/funcs.zsh'}
