@@ -42,7 +42,7 @@ vim.cmd [[colorscheme nord]]
 -- vim.g.onedark_terminal_italics = 2
 -- vim.cmd [[colorscheme onedark]]
 
-vim.cmd('syntax enable')
+vim.cmd('syntax on')
 -- add vertical lines on columns
 vim.opt.colorcolumn = '120,150'
 vim.opt.cursorline = true
@@ -181,7 +181,7 @@ vim.opt.backup = false
 vim.opt.writebackup = false
 vim.opt.swapfile = false
 vim.opt.undofile = true
-vim.opt.undodir = '~/.cache/nvim/undodir'
+vim.opt.undodir = vim.env.HOME.."/.cache/nvim/undodir"
 
 -- Plugins
 -- vim-json
