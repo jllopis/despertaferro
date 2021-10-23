@@ -16,7 +16,7 @@
       - name: nvim | install patched nerd font
         ansible.builtin.unarchive:
           src: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
-          dest: {{ ansible_user_dir }}/.local/share/fonts
+          dest: "{{ ansible_user_dir }}/.local/share/fonts"
           remote_src: yes
 
       - name: nvim | update fonts cache
