@@ -3,6 +3,25 @@
 
 - name: nvim | install and config
   block:
+      - name: nvim | create directories .config/nvim/lua dir
+        tags: nvim,config
+        file:
+          path: "{{ ansible_user_dir }}/{{ item }}"
+          state: directory
+        with_items:
+          - ".config/nvim/lua"
+          - ".config/nvim/lua/pluginsConfig"
+          - ".local/share/fonts"
+
+      - name: nvim | install patched nerd font
+        ansible.builtin.unarchive:
+          src: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
+          dest: {{ ansible_user_dir }}/.local/share/fonts
+          remote_src: yes
+
+      - name: nvim | update fonts cache
+        command: fc-cache -f
+
       - name: nvim | add stable repository from PPA and install its signing key on Ubuntu target
         tags: nvim
         become: true
@@ -18,7 +37,6 @@
             state: latest
             pkg:
                 - software-properties-common
-                - fonts-firacode
                 - universal-ctags
                 - python3-dev
                 - python3-pip
@@ -48,15 +66,6 @@
             link: /usr/bin/editor
             name: editor
             path: /usr/bin/nvim
-
-      - name: nvim | create .config/nvim/lua dir
-        tags: nvim,config
-        file:
-          path: "{{ ansible_user_dir }}/.config/nvim/{{ item }}"
-          state: directory
-        with_items:
-          - "lua"
-          - "lua/pluginsConfig"
 
       - name: nvim | copy nvim configuration files
         tags: nvim

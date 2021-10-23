@@ -171,8 +171,7 @@ vim.opt.foldenable = true
 vim.opt.foldmethod = 'syntax'
 vim.opt.foldlevelstart = 99
 
-vim.opt.guifont = 'FuraCode Nerd Font:h15'
--- set guifont=Fira\ Mono\ for\ Powerline\ Normal\:h12
+vim.opt.guifont = 'JetBrains Mono Regular Nerd Font Complete Mono:h12'
 --vim.opt.guioptions:remove('L')
 ---------------------------------------------------------------
 -- => Files, backups and undo
