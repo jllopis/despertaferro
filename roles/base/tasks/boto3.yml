@@ -1,0 +1,4 @@
+- name: install boto3 package
+  pip:
+      name: boto3
+  become: True

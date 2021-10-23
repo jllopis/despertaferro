@@ -8,6 +8,7 @@
 Session.vim
 .netrwhist
 *~
+sessions/
 
 # Go Ignores
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
@@ -59,7 +60,6 @@ tmp
 # YARD artifacts
 .yardoc
 _yardoc
-doc/
 
 # C Ignores
 # Object files

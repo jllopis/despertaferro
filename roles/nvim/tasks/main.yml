@@ -1,0 +1,96 @@
+- include_vars: "{{ ansible_distribution }}.yml"
+  tags: always
+
+- name: nvim | install and config
+  block:
+      - name: nvim | create directories .config/nvim/lua dir
+        tags: nvim,config
+        file:
+          path: "{{ ansible_user_dir }}/{{ item }}"
+          state: directory
+        with_items:
+          - ".config/nvim/lua"
+          - ".config/nvim/lua/pluginsConfig"
+          - ".local/share/fonts"
+
+      - name: nvim | install patched nerd font
+        ansible.builtin.unarchive:
+          src: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
+          dest: "{{ ansible_user_dir }}/.local/share/fonts"
+          remote_src: yes
+
+      - name: nvim | update fonts cache
+        command: fc-cache -f
+
+      - name: nvim | add stable repository from PPA and install its signing key on Ubuntu target
+        tags: nvim
+        become: true
+        ansible.builtin.apt_repository:
+            repo: ppa:neovim-ppa/unstable
+            update_cache: yes
+
+      - name: nvim | install neovim
+        tags: nvim
+        become: true
+        apt:
+            update_cache: yes
+            state: latest
+            pkg:
+                - software-properties-common
+                - universal-ctags
+                - python3-dev
+                - python3-pip
+                - python3-neovim
+                - neovim
+
+      - name: nvim | set alternatives
+        tags: nvim
+        become: true
+        alternatives:
+            link: /usr/bin/vim
+            name: vim
+            path: /usr/bin/nvim
+
+      - name: nvim | set alternatives
+        tags: nvim
+        become: true
+        alternatives:
+            link: /usr/bin/vi
+            name: vi
+            path: /usr/bin/nvim
+
+      - name: nvim | set alternatives
+        tags: nvim
+        become: true
+        alternatives:
+            link: /usr/bin/editor
+            name: editor
+            path: /usr/bin/nvim
+
+      - name: nvim | copy nvim configuration files
+        tags: nvim
+        ansible.builtin.copy:
+            src: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+            owner: "{{ ansible_user_id }}"
+            group: "{{ ansible_user_gid }}"
+            mode: 0644
+        with_items:
+            - { src: 'init.lua', dest: '{{ ansible_user_dir }}/.config/nvim/init.lua' }
+            - { src: 'lua/autocommands.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/autocommands.lua' }
+            - { src: 'lua/basic.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/basic.lua' }
+            - { src: 'lua/lightline.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/lightline.lua' }
+            - { src: 'lua/maps.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/maps.lua' }
+            - { src: 'lua/plugins.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/plugins.lua' }
+            - { src: 'lua/plugin-nvim-tree.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/pluginsConfig/nvim-tree.lua' }
+            - { src: 'lua/plugin-telescope.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/pluginsConfig/telescope.lua' }
+            - { src: 'lua/plugin-bufferline.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/pluginsConfig/bufferline.lua' }
+            - { src: 'lua/plugin-autopairs.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/pluginsConfig/autopairs.lua' }
+            - { src: 'lua/plugin-lspinstall.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/pluginsConfig/lspinstall.lua' }
+
+      - name: nvim | install plugins
+        command: vim +PackerInstall +PackerCompile +qall
+
+  rescue:
+      - set_fact: task_failed=true
+
