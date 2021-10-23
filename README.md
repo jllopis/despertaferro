@@ -21,7 +21,7 @@ More to come...
 
 Easy. Just run
 
-    curl https://raw.github.com/jllopis/mydotfiles/master/install.sh | bash
+    curl https://raw.github.com/jllopis/despertaferro/master/install.sh | bash
 
 it will install in your _$HOME_ directory.
 

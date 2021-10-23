@@ -1,0 +1,7 @@
+dns_utils_package: dnsutils
+lm_sensors_package: lm-sensors
+nfs_client_package: nfs-common
+openssh_package: openssh-server
+openssh_service: ssh
+rename_package: rename
+sudo_group: sudo

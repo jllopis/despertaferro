@@ -1,0 +1,16 @@
+- include_vars: "{{ ansible_distribution }}.yml"
+  tags: always
+  become: true
+
+- block:
+    - import_tasks: cleanup_group.yml
+    - import_tasks: utilities_group.yml
+    - import_tasks: development_group.yml
+
+    - import_tasks: clock.yml
+    - import_tasks: apt.yml
+    - import_tasks: pip3.yml
+    - import_tasks: boto3.yml
+
+  rescue:
+      - set_fact: task_failed=true

@@ -1,0 +1,31 @@
+# Written with ♡ by Joan
+# With help&ideas from many others
+
+# Set up the prompt
+autoload -Uz promptinit
+promptinit
+prompt adam1
+
+setopt histignorealldups sharehistory
+
+# Use emacs keybindings even if our EDITOR is set to vi
+#bindkey -e
+
+# Keep 10000 lines of history within the shell and save it to ~/.zsh_history:
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE=~/.zsh_history
+
+autoload -Uz vcs_info
+precmd_vcs_info() { vcs_info }
+precmd_functions+=( precmd_vcs_info )
+setopt prompt_subst
+PROMPT=\$vcs_info_msg_0_
+zstyle ':vcs_info:git:*' formats '%F{240}(%b)%r%f'
+zstyle ':vcs_info:*' enable git
+
+# Include configuration files
+if [ -f ~/.config/zsh/zshenv ]; then source ~/.config/zsh/zshenv; fi
+if [ -f ~/.config/zsh/alias.zsh ]; then source ~/.config/zsh/alias.zsh; fi
+if [ -f ~/.config/zsh/funcs.zsh ]; then source ~/.config/zsh/funcs.zsh; fi
+if [ -f ~/.config/zsh/completion.zsh ]; then source ~/.config/zsh/completion.zsh; fi

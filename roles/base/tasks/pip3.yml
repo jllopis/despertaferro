@@ -1,0 +1,5 @@
+- name: system | install pip3
+  tags: packages,system,pip3
+  package:
+      state: latest
+      name: python3-pip

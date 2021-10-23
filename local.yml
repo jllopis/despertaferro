@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  connection: local
+
+  roles:
+      - base
+      - zsh
+      - tmux
+      - nvim
+

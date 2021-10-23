@@ -1,0 +1,43 @@
+- include_vars: "{{ ansible_distribution }}.yml"
+  tags: always
+
+- name: zsh | install and config
+  block:
+      - name: zsh | install zsh
+        tags: zsh,shell
+        become: true
+        package:
+            name:
+                - zsh
+
+      - name: zsh | chsh for user {{ ansible_user_id }}
+        tags: zsh,shell
+        become: true
+        user:
+            name: "{{ ansible_user_id }}"
+            shell: /bin/zsh
+
+      - name: zsh | create .config/zsh dir
+        tags: zsh,shell,config
+        file:
+            path: "{{ ansible_user_dir }}/.config/zsh"
+            state: directory
+
+      - name: zsh | copy ZSH configuration files
+        tags: zsh,shell
+        ansible.builtin.copy:
+            src: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+            owner: "{{ ansible_user_id }}"
+            group: "{{ ansible_user_gid }}"
+            mode: 0644
+        with_items:
+            - { src: 'zshrc', dest: '{{ ansible_user_dir }}/.zshrc' }
+            - { src: 'zshenv', dest: '{{ ansible_user_dir }}/.config/zsh/zshenv'}
+            - { src: 'zshalias', dest: '{{ ansible_user_dir }}/.config/zsh/alias.zsh'}
+            - { src: 'zshfuncs', dest: '{{ ansible_user_dir }}/.config/zsh/funcs.zsh'}
+            - { src: 'zshcompletion', dest: '{{ ansible_user_dir }}/.config/zsh/completion.zsh'}
+
+  rescue:
+      - set_fact: task_failed=true
+
