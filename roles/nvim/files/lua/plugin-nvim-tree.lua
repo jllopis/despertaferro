@@ -61,3 +61,5 @@ vim.g.nvim_tree_icons = {
     }
 }
 
+vim.api.nvim_set_keymapap('n', '<leader>d', '<Cmd>NvimTreeToggle<CR>', { noremap = true, silent = true })
+
