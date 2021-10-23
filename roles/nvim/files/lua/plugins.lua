@@ -20,6 +20,7 @@ local use = require('packer').use
 require('packer').startup(function()
   use {'wbthomason/packer.nvim', opt = true} -- Package manager
   use { 'kyazdani42/nvim-tree.lua', requires = { 'kyazdani42/nvim-web-devicons' } } -- file explorer
+  use 'akinsho/nvim-bufferline.lua'
   use 'arcticicestudio/nord-vim' -- nord theme
   use 'tpope/vim-surround'
   use 'windwp/nvim-autopairs'
