@@ -95,7 +95,7 @@ zstyle ':completion:*' keep-prefix true
 zstyle -e ':completion:*:(ssh|scp|sftp|rsh|rsync):hosts' hosts 'reply=(${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) /dev/null)"}%%[# ]*}//,/ })'
 
 # shell command completion for kubectl
-which kubectl && source <(kubectl completion zsh)
+which kubectl 2>&1 >> /dev/null && source <(kubectl completion zsh)
 
 # shell command completion for gcloud
 if [ -f ~/google-cloud-sdk/completion.zsh.inc ]; then source ~/google-cloud-sdk/completion.zsh.inc; fi
