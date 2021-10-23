@@ -52,8 +52,11 @@
       - name: nvim | create .config/nvim/lua dir
         tags: nvim,config
         file:
-          path: "{{ ansible_user_dir }}/.config/nvim/lua"
+          path: "{{ ansible_user_dir }}/.config/nvim/{{ item }}"
           state: directory
+        with_itmes:
+          - "lua"
+          - "lua/pluginsConfig"
 
       - name: nvim | copy nvim configuration files
         tags: nvim
@@ -70,6 +73,10 @@
             - { src: 'lua/lightline.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/lightline.lua' }
             - { src: 'lua/maps.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/maps.lua' }
             - { src: 'lua/plugins.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/plugins.lua' }
+            - { src: 'lua/plugin-nvim-tree.lua', dest: '{{ ansible_user_dir }}/.config/nvim/lua/pluginsConfig/nvim-tree.lua' }
+
+      - name: nvim | install plugins
+        command: vim +PackerInstall +PackerCompile +qall
 
   rescue:
       - set_fact: task_failed=true
