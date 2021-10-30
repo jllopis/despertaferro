@@ -9,10 +9,11 @@ require'nvim-tree'.setup{
     width = 36,
     mappings = {
       list = {
+          { key = {"<CR>", "l", "o", "<2-LeftMouse>"}, cb = tree_cb("edit") },
+          { key = { "-", "h" }, cb = tree_cb("dir_up") },
           { key = { "." },      cb = tree_cb("toggle_dotfiles") },
           { key = { "n" },      cb = tree_cb("create") },
           { key = { "r" },      cb = tree_cb("full_rename") },
-          { key = { "<" },      cb = tree_cb("dir_up") },
           { key = { "<C-r>" },  cb = tree_cb("refresh") },
       }
     }
