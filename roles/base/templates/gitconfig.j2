@@ -1,0 +1,116 @@
+[apply]
+  # Detect whitespace errors when applying a patch
+  whitespace = fix
+
+[color]
+  ui = auto
+
+[color "branch"]
+  current = yellow reverse
+  local = yellow
+  remote = green
+
+[color "diff"]
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
+  whitespace = red reverse
+
+[color "status"]
+  added = yellow
+  changed = green
+  untracked = cyan
+
+[core]
+  excludesfile = .global_ignore_file
+  whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol,space-before-tab
+
+[merge]
+  log = true
+
+# Use `origin` as the default remote on the `master` branch in all cases
+#[branch "master"]
+#  remote = origin
+#  merge = refs/heads/master
+
+[push]
+  default = simple
+
+[alias]
+  st = status -s
+  ci = commit
+  br = branch
+  co = checkout
+  df = diff
+  dc = diff --cached
+  l = log --pretty=oneline -n 20 --graph
+  lg = log -p
+  lol = log --graph --decorate --pretty=oneline --abbrev-commit
+  lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+  ls = ls-files
+
+###
+#
+# From https://medium.freecodecamp.org/bash-shortcuts-to-enhance-your-git-workflow-5107d64ea0ff
+
+  # Consistent Branch Names
+  newb = "!f() { ticketnum=$1; branchName=$2; git checkout -b \"BB-issue${ticketnum}/${branchName}\"; }; f"
+  # Commit Counting
+  count = "!f() { compareBranch=${1-master}; git rev-list --count HEAD ^$compareBranch; }; f"
+  # Squashiung X commits. Get the number of commits to squash and start an interactive rebase.
+  squashbase = "!f() { branchName=${1-master}; commitCount=$(git count $branchName); git rebase -i HEAD~$commitCount; }; f"
+  # Update master and rebase the branch. Checkout the branch, pull it, check out the previous branch and rebase
+  pullbase = "!f() { branchName=${1-master}; git checkout $branchName && git pull && git checkout - && git rebase -i $branchName; }; f"
+
+###
+
+  # Better alternative to git pull because pull is evil
+  # http://stackoverflow.com/questions/15316601/why-is-git-pull-considered-harmful
+  up = "!git remote update -p; git merge --ff-only @{u}"
+
+  # Show files ignored by git:
+  ign = ls-files -o -i --exclude-standard
+
+  # Show the diff between the latest commit and the current state
+  d = !"git diff-index --quiet HEAD -- || clear; git diff --patch-with-stat"
+
+  # Pull in remote changes for the current repository and all its submodules
+  p = "!git pull; git submodule foreach git pull origin master"
+
+  # Clone a repository including all submodules
+  c = clone --recursive
+
+  # Commit all changes
+  ca = !git add -A && git commit -av
+
+  # Show verbose output about tags, branches or remotes
+  tags = for-each-ref --format='%(if)%(committerdate)%(then)%(committerdate)%(else)%(*committerdate)%(end) %(refname:lstrip=2)' refs/tags/*
+  tagl = tag -l
+  branches = branch -a
+  remotes = remote -v
+
+  # Credit an author on the latest commit
+  credit = "!f() { git commit --amend --author \"$1 <$2>\" -C HEAD; }; f"
+  # Credit an author on all the commits: credit_all <Old Email> <New Name> <New Email>
+  creditall = "!f() { git filter-branch --commit-filter 'if [ \"$GIT_COMMITTER_EMAIL\" = \"$1\" ]; then GIT_COMMITTER_NAME=\"$2\"; GIT_AUTHOR_NAME=\"$2\"; GIT_COMMITTER_EMAIL=\"$3\"; GIT_AUTHOR_EMAIL=\"$3\"; git commit-tree \"$@\"; else git commit-tree \"$@\"; fi' HEAD; }; f"
+
+  # UndoCommit. Undo last commit
+  uc = reset --soft HEAD^
+
+[merge]
+  conflictstyle = diff3
+
+[user]
+	name = {{ git_global_config_name }}
+	email = {{ git_global_config_email }}
+
+[pull]
+  rebase = true
+
+#[url "git@github.com:"]
+#	insteadOf = https://github.com/
+[url "git@bitbucket.org:"]
+	insteadOf = https://bitbucket.org/
+[credential]
+	helper = store
