@@ -139,7 +139,6 @@
           priority: 100
 
       - name: nvim | install language servers (go install)
-        become: true
         ansible.builtin.command: "go install {{ item }}"
         loop:
           - golang.org/x/tools/gopls@latest
