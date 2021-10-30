@@ -8,3 +8,26 @@
           - mysql-client
           - postgresql-client
       state: latest
+
+- name: system | development | git config - copy files
+  tags: dev,development,config
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+    mode: 0644
+  with_items:
+    - { src: 'global_ignore_file', dest: '{{ ansible_user_dir }}/.global_ignore_file' }
+
+- name: system | development | git config - apply templates
+  tags: dev,development,config
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+    mode: 0644
+  with_items:
+    - { src: 'gitconfig.j2', dest: '{{ ansible_user_dir }}/.gitconfig' }
+

@@ -5,3 +5,6 @@ openssh_package: openssh-server
 openssh_service: ssh
 rename_package: rename
 sudo_group: sudo
+
+git_global_config_name: "{{ lookup('env','DESPERTA_GIT_NAME') }}"
+git_global_config_email: "{{ lookup('env','DESPERTA_GIT_EMAIL') }}"
