@@ -1,0 +1,26 @@
+# Apply different settigns for different terminals
+# Thanks to manjaro linux
+case $(basename "$(cat "/proc/$PPID/comm")") in
+  login)
+      source ~/.config/zsh/base_prompt.zsh
+    ;;
+  *)
+      if [[ $TERM == "linux" ]]; then
+        # TTY does not have powerline fonts
+        source ~/.config/zsh/base_prompt.zsh
+      elif [[ "$USE_POWERLINE" == "true" ]]; then
+        # Use powerline
+        source ~/.config/zsh/powerlevel10k/powerlevel10k.zsh-theme
+        [[ ! -f ~/.config/zsh/p10k.zsh ]] || source ~/.config/zsh/p10k.zsh
+        source ~/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+        ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+        ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+      else
+        # Don't use powerline anyway
+        source ~/.config/zsh/base_prompt.zsh
+        source ~/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+        ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+        ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+      fi
+    ;;
+esac
