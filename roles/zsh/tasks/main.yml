@@ -17,11 +17,15 @@
             name: "{{ ansible_user_id }}"
             shell: /bin/zsh
 
-      - name: zsh | create .config/zsh dir
+      - name: zsh | create .config/zsh directories
         tags: zsh,shell,config
-        file:
-            path: "{{ ansible_user_dir }}/.config/zsh"
+        ansible.builtin.file:
+            path: "{{ item }}"
             state: directory
+        loop:
+          - "{{ ansible_user_dir }}/.config/zsh"
+          - "{{ ansible_user_dir }}/.config/zsh/plugins"
+          - "{{ ansible_user_dir }}/.config/zsh/plugins/zsh-autosuggestions"
 
       - name: zsh | copy ZSH configuration files
         tags: zsh,shell
@@ -37,6 +41,18 @@
             - { src: 'zshalias', dest: '{{ ansible_user_dir }}/.config/zsh/alias.zsh'}
             - { src: 'zshfuncs', dest: '{{ ansible_user_dir }}/.config/zsh/funcs.zsh'}
             - { src: 'zshcompletion', dest: '{{ ansible_user_dir }}/.config/zsh/completion.zsh'}
+            - { src: 'zshprompt', dest: '{{ ansible_user_dir }}/.config/zsh/base_prompt.zsh'}
+            - { src: 'zshpowerline', dest: '{{ ansible_user_dir }}/.config/zsh/gimlab_prompt.zsh'}
+            - { src: 'p10kzsh', dest: '{{ ansible_user_dir }}/.config/zsh/p10k.zsh'}
+            - { src: 'zsh-autosuggestions.plugin.zsh', dest: '{{ ansible_user_dir }}/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh'}
+            - { src: 'zsh-autosuggestions.zsh', dest: '{{ ansible_user_dir }}/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh'}
+
+      - name: zsh | install powerline10k
+        tags: zsh,themes
+        ansible.builtin.git:
+          repo: https://github.com/romkatv/powerlevel10k.git
+          dest: "{{ ansible_user_dir }}/.config/zsh/powerlevel10k"
+          depth: 1
 
   rescue:
       - set_fact: task_failed=true
