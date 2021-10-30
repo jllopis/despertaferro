@@ -22,7 +22,7 @@
         ansible.builtin.file:
             path: "{{ item }}
             state: directory
-        with_items:
+        loop:
           - "{{ ansible_user_dir }}/.config/zsh"
           - "{{ ansible_user_dir }}/.config/zsh/plugins"
           - "{{ ansible_user_dir }}/.config/zsh/plugins/zsh-autosuggestions"
