@@ -20,7 +20,7 @@
       - name: zsh | create .config/zsh directories
         tags: zsh,shell,config
         ansible.builtin.file:
-            path: "{{ item }}
+            path: "{{ item }}"
             state: directory
         loop:
           - "{{ ansible_user_dir }}/.config/zsh"
