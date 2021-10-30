@@ -93,6 +93,7 @@
 
       - name: nvim | install language servers (npm)
         tags: nvim,lsp
+        become: true
         community.general.npm:
           name: "{{ item }}"
           state: latest
@@ -107,11 +108,13 @@
           - yaml-language-server
 
       - name: Add an Apt signing key, uses whichever key is at the URL
+        become: true
         ansible.builtin.apt_key:
           url: https://apt.releases.hashicorp.com/gpg
           state: present
 
       - name: nvim | add lsp repository for terraform
+        become: true
         ansible.builtin.apt_repository:
           repo: deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main
           state: present
@@ -136,12 +139,14 @@
           priority: 100
 
       - name: nvim | install language servers (go install)
+        become: true
         ansible.builtin.command: "go install {{ item }}"
         loop:
           - golang.org/x/tools/gopls@latest
           - github.com/lighttiger2505/sqls
 
       - name: nvim | activate language servers in nvim
+        become: true
         ansible.builtin.command: "nvim --headless -c 'LspInstall {{ item }}' -c 'qall'"
         loop:
           - bash
