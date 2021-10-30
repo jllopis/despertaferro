@@ -28,9 +28,13 @@ More to come...
 
 Easy. Just run
 
-    curl https://raw.githubusercontent.com/jllopis/despertaferro/master/install.sh | bash
+    curl https://raw.githubusercontent.com/jllopis/despertaferro/master/install.sh | DESPERTA_GIT_NAME="Joan Llopis" \
+        DESPERTA_GIT_EMAIL="jllopis@mail.cat"\
+        bash
 
 and it will install the config in the _$HOME_ directory of the running user.
+
+The two environment variables are used to set you user and email in git global config.
 
 # Supported OSs
 
