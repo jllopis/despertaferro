@@ -41,8 +41,8 @@ require('packer').startup(function()
   -- use 'nvim-treesitter/nvim-treesitter-textobjects'
   use 'neovim/nvim-lspconfig' -- Collection of configurations for built-in LSP client
   use 'kabouzeid/nvim-lspinstall'
-  -- use 'hrsh7th/nvim-cmp' -- Autocompletion plugin
-  -- use 'hrsh7th/cmp-nvim-lsp'
+  use 'hrsh7th/nvim-cmp' -- Autocompletion plugin
+  use 'hrsh7th/cmp-nvim-lsp'
   -- use 'saadparwaiz1/cmp_luasnip'
   -- use 'L3MON4D3/LuaSnip' -- Snippets plugin
   -- use { 'Shougo/defx.nvim', requires = { 'kristijanhusak/defx-git', 'kristijanhusak/defx-icons' }, config = [[require('plugins/defx')]] } -- The best file manager ever
