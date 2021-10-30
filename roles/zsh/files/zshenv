@@ -15,11 +15,9 @@ export EDITOR="nvim"
 export VISUAL="nvim"
 
 # zsh
-export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
-export HISTFILE="$ZDOTDIR/.zhistory"    # History filepath
-export HISTSIZE=10000                   # Maximum events for internal history
-export SAVEHIST=10000                   # Maximum events in history file
+export HISTFILE="$XDG_CACHE_HOME/zsh/.zhistory"    # History filepath
+export HISTSIZE=10000                              # Maximum events for internal history
+export SAVEHIST=10000                              # Maximum events in history file
 
 # other software
-export TMUXP_CONFIGDIR="$XDG_CONFIG_HOME/tmuxp"
 export VIMCONFIG="$XDG_CONFIG_HOME/nvim"
