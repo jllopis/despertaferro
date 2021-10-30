@@ -16,8 +16,8 @@ export VISUAL="nvim"
 
 # zsh
 export HISTFILE="$XDG_CACHE_HOME/zsh/.zhistory"    # History filepath
-export HISTSIZE=10000                              # Maximum events for internal history
-export SAVEHIST=10000                              # Maximum events in history file
+export HISTSIZE=999999999                          # Maximum events for internal history
+export SAVEHIST=999999999                          # Maximum events in history file
 
 # other software
 export VIMCONFIG="$XDG_CONFIG_HOME/nvim"
