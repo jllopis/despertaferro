@@ -17,17 +17,15 @@
             name: "{{ ansible_user_id }}"
             shell: /bin/zsh
 
-      - name: zsh | create .config/zsh dir
+      - name: zsh | create .config/zsh directories
         tags: zsh,shell,config
-        file:
-            path: "{{ ansible_user_dir }}/.config/zsh"
+        ansible.builtin.file:
+            path: "{{ item }}
             state: directory
-
-      - name: zsh | create .config/zsh/plugins dir
-        tags: zsh,shell,config
-        file:
-            path: "{{ ansible_user_dir }}/.config/zsh/plugins"
-            state: directory
+        with_items:
+          - "{{ ansible_user_dir }}/.config/zsh"
+          - "{{ ansible_user_dir }}/.config/zsh/plugins"
+          - "{{ ansible_user_dir }}/.config/zsh/plugins/zsh-autosuggestions"
 
       - name: zsh | copy ZSH configuration files
         tags: zsh,shell
