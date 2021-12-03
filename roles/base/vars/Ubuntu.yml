@@ -8,3 +8,6 @@ sudo_group: sudo
 
 git_global_config_name: "{{ lookup('env','DESPERTA_GIT_NAME') }}"
 git_global_config_email: "{{ lookup('env','DESPERTA_GIT_EMAIL') }}"
+
+# Go install
+go_download_location: "https://storage.googleapis.com/golang/{{ go_tarball }}"
