@@ -33,6 +33,7 @@
 
 - name: system | development | go
   tags: dev,development,go
+  become: true
   block:
     - name: Download the Go tarball
       get_url:
