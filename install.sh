@@ -17,6 +17,9 @@ USERNAME=$USER
 PACKAGES=('git' 'ansible')
 PACMAN=""
 
+function log() {
+}
+
 function main() {
 	# Select OS
 	case `uname` in
