@@ -19,9 +19,8 @@ There are a couple things that I use every day and gets installed and configured
 - NeoVim and its config files: installed in `~/.config/nvim`
 - Git config: .gitconfig at user _$HOME_. It also set default global ignore file.
 - ZSH: _.zshrc_, and the config files and plugins in `~/.config/zsh`. It also installs and config `powerlevel10k` theme.
-- Tmux: _.tmux.conf_.
+- Tmux: _.tmux.conf_. (looking for integration of a session manaser such [jrmoulton/tmux-sessionizer](https://github.com/jrmoulton/tmux-sessionizer) or [ThePrimeagen/tmux-sessionizer](https://github.com/ThePrimeagen/.dotfiles/blob/master/bin/.local/scripts/tmux-sessionizer))
 - Some util and development packages
-
 More to come...
 
 # How to use
@@ -45,3 +44,12 @@ The configuration and setup procedure Has been tested with:
 # Notice
 
 This dot files and configuration are **my** preferences so it is both, customized and heavily opinionated. Anyway, if somebody find it useful I'll be happy for it.
+
+# References #
+
+This are good sources to take ideas as they come from really smart people:
+
+- [ThePrimeagen/.dotfiles](https://github.com/ThePrimeagen/.dotfiles)
+- [joaean-dev/dev-environment-files](https://github.com/josean-dev/dev-environment-files)
+- [NVChad](https://nvchad.com) ([sources](https://github.com/NvChad/NvChad))
+- [omerxx/dotfiles](https://github.com/omerxx/dotfiles)

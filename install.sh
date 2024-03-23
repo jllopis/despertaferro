@@ -3,8 +3,7 @@ set -e
 
 # install.sh
 #       Will install the deault environment in a computer with either OSX or Ubuntu Linux
-USERNAME=$USER
-REQUIRED_GO_VERSION="go1.11.7"
+USERNAME=$USER REQUIRED_GO_VERSION="go1.11.7"
 REQUIRED_GO_ARCH="amd64"
 REQUIRED_GO_OS="darwin"
 
