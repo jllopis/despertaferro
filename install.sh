@@ -2,10 +2,7 @@
 set -e
 
 # install.sh
-#       Will install the deault environment in a computer with either OSX or Ubuntu Linux
-USERNAME=$USER REQUIRED_GO_VERSION="go1.11.7"
-REQUIRED_GO_ARCH="amd64"
-REQUIRED_GO_OS="darwin"
+#       Will install the deault environment in a computer with either OSX or Debian Linux
 
 # Global vars
 TIMESTAMP=`date -u +%Y%m%dT%H%M%SZ`
@@ -16,8 +13,29 @@ USERNAME=$USER
 # Note that in OSX Homebrew will always be insalled if not present
 PACKAGES=('git' 'ansible')
 PACMAN=""
+PACMAN_OPTS=""
 
-function log() {
+LOCATOR="which"
+
+function check_install_brew () {
+    ${LOCATOR} brew 2>&1 > /dev/null
+    if [[ $? -ne 0 ]]; then
+        printf "brew no está instalado. Se instalará..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    else
+        printf "\t%s %s\n" `brew -v`
+    fi
+}
+
+install_packages () {
+    ${PACMAN} update
+    for p in "${PACKAGES[@]}"
+    do
+        printf "[EXEC] %s install %s %s\n" ${PACMAN} ${PACMAN_OPTS} ${p}
+        ${PACMAN} install ${PACMAN_OPTS} ${p}
+    done
+
+    printf "\n[\033[32mOK\033[0m] System requirements installed!\n"
 }
 
 function main() {
@@ -25,9 +43,11 @@ function main() {
 	case `uname` in
 	'Darwin')
 		THIS_OS="darwin"
+        THIS_ARQ=`uname -m`
 	;;
 	'Linux')
 		THIS_OS="linux"
+        THIS_ARQ=`uname -m`
 	;;
 	*)
 		echo "${failure}Unrecognized OS. Aborting${text_reset}"
@@ -40,34 +60,38 @@ function main() {
         case `lsb_release -is` in
             "Ubuntu")
                 PACMAN="apt"
+                PACMAN_OPTS="-y --no-install-recommends"
+                ${PACMAN} update
+                ${PACMAN} install ${PACMAN_OPTS} software-properties-common
+                add-apt-repository --yes --update ppa:ansible/ansible
+                ;;
+            "Debian")
+                PACMAN="apt"
+                PACMAN_OPTS="-y --no-install-recommends"
+                # https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html#installing-ansible-on-debian
+                UBUNTU_CODENAME="jammy"
+                wget -O- "https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=get&search=0x6125E2A8C77F2818FB7BD15B93C4A3FD7BB9C367" | sudo gpg --dearmour -o /usr/share/keyrings/ansible-archive-keyring.gpg
+                echo "deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa.launchpad.net/ansible/ansible/ubuntu $UBUNTU_CODENAME main" | sudo tee /etc/apt/sources.list.d/ansible.list
                 ;;
             *)
                 echo "[\033[31mERROR\033[0m] Cannot determine your Linux distro. lsb_release -is = ${`lsb_release -is`}"
                 ;;
         esac
-	else
-		LOCATOR="type -p"
+    elif [[ ${THIS_OS} == "darwin" ]]; then
+        PACMAN="brew"
+    else
+        echo "[\033[31mERROR\033[0m] Unknown Operating System. Aborting!"
+        exit 1
 	fi
 
 	printf "Installation started at %s\n" $TIMESTAMP
-	printf "\tOS: %s\n" $THIS_OS
+	printf "\tOS: %s %s\n" $THIS_OS $THIS_ARQ
 	printf "\tUSERNAME: %s\n" $USERNAME
 	printf "\tHOME DIR: %s\n" $HOME
 	
     # Prepare Ansible install
-    sudo apt update
-    sudo apt install software-properties-common
-    sudo add-apt-repository --yes --update ppa:ansible/ansible
-
-    # Install required packages
-    for p in "${PACKAGES[@]}"
-    do
-        echo "[EXEC] sudo ${PACMAN} install -y ${p}"
-        sudo $PACMAN install -y --no-install-recommends ${p}
-    done
-
-	echo ""
-	printf "[\033[32mOK\033[0m] System requirements installed!"
+    check_install_brew || exit 1
+    install_packages || exit 1
 
     # Launch ansible-pull
     ansible-pull -U https://github.com/jllopis/despertaferro.git
@@ -76,7 +100,7 @@ function main() {
 # Ask for the administrator password upfront
 sudo -v
 
-# Keep-alive: update existing `sudo` time stamp until `.osx` has finished
+# Keep-alive: update existing `sudo` time stamp until script has finished
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 # Start
