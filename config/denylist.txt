@@ -1,0 +1,49 @@
+# Runtime denylist for tracked dotfiles.
+# The CLI must refuse or warn before tracking paths matching these patterns.
+
+# Shell history and generated completion state
+.zsh_history
+.config/zsh/.zsh_history
+.config/zsh/.zcompdump
+.config/zsh/.zcompdump-*
+.config/zsh/.zcompcache/
+.config/zsh/.zcompcache/**
+.bash_history
+.python_history
+.sqlite_history
+.lesshst
+
+# Logs, caches, and local application state
+*.log
+.cache/
+.cache/**
+.local/state/
+.local/state/**
+.config/btop/btop.log
+
+# Secrets and credentials
+.env
+.env.*
+credentials
+credentials.*
+credentials.txt
+secrets
+secrets.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+*.kubeconfig
+.kube/config
+.aws/credentials
+.config/gcloud/
+.docker/config.json
+
+# Token-like files or generated auth material
+*token*
+*secret*
+*password*
+*passwd*
+

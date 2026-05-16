@@ -1,0 +1,4 @@
+# Initial tracked path allowlist.
+# Entries are appended by `desperta track <path>`.
+
+.config/despertaferro

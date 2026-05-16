@@ -1,0 +1,25 @@
+.DS_Store
+.zig-cache/
+zig-out/
+
+# Local editor and shell state
+*.swp
+*.swo
+*~
+
+# Logs and transient output
+*.log
+tmp/
+build/
+dist/
+
+# Sensitive local material
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+
