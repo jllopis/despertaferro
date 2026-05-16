@@ -47,11 +47,9 @@ fn commandStatus(allocator: std.mem.Allocator, io: std.Io, environ_map: *const s
     std.debug.print("purpose: {s}\n", .{present(io, purpose_path)});
     std.debug.print("plan: {s}\n", .{present(io, plan_path)});
 
-    if (environ_map.get("HOME")) |value| {
-        std.debug.print("worktree: {s}\n", .{value});
-    } else {
-        std.debug.print("worktree: unknown (HOME is not set)\n", .{});
-    }
+    const worktree_path = try resolveWorktreePath(allocator, environ_map);
+    defer allocator.free(worktree_path);
+    std.debug.print("worktree: {s}\n", .{worktree_path});
 
     const repo_path = try resolveRepoPath(allocator, environ_map);
     defer allocator.free(repo_path);
@@ -76,6 +74,21 @@ fn commandStatus(allocator: std.mem.Allocator, io: std.Io, environ_map: *const s
         .branch => |branch| std.debug.print("active branch: {s}\n", .{branch}),
         .detached => |object_id| std.debug.print("detached HEAD: {s}\n", .{object_id}),
     }
+
+    const worktree_status = git_backend.statusWorktree(allocator, io, repo, worktree_path) catch |err| {
+        switch (err) {
+            error.IndexMissing => std.debug.print("worktree status: unavailable (index missing)\n", .{}),
+            error.InvalidIndex => std.debug.print("worktree status: unavailable (invalid index)\n", .{}),
+            error.UnsupportedIndexVersion => std.debug.print("worktree status: unavailable (unsupported index version)\n", .{}),
+            else => return err,
+        }
+        return;
+    };
+
+    std.debug.print("worktree tracked: {d}\n", .{worktree_status.tracked});
+    std.debug.print("worktree clean: {d}\n", .{worktree_status.clean});
+    std.debug.print("worktree modified: {d}\n", .{worktree_status.modified});
+    std.debug.print("worktree deleted: {d}\n", .{worktree_status.deleted});
 }
 
 fn resolveRepoPath(allocator: std.mem.Allocator, environ_map: *const std.process.Environ.Map) ![]const u8 {
@@ -89,6 +102,18 @@ fn resolveRepoPath(allocator: std.mem.Allocator, environ_map: *const std.process
 
     if (environ_map.get("HOME")) |value| {
         return std.fmt.allocPrint(allocator, "{s}/.local/state/despertaferro/repo.git", .{value});
+    }
+
+    return error.MissingHome;
+}
+
+fn resolveWorktreePath(allocator: std.mem.Allocator, environ_map: *const std.process.Environ.Map) ![]const u8 {
+    if (environ_map.get("DESPERTA_WORKTREE")) |value| {
+        return allocator.dupe(u8, value);
+    }
+
+    if (environ_map.get("HOME")) |value| {
+        return allocator.dupe(u8, value);
     }
 
     return error.MissingHome;
