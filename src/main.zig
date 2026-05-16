@@ -1,4 +1,5 @@
 const std = @import("std");
+const git_backend = @import("git_backend.zig");
 
 const manifest_path = "desperta.toml";
 const denylist_path = "config/denylist.txt";
@@ -20,7 +21,7 @@ pub fn main(init: std.process.Init) !u8 {
         printHelp();
         return 0;
     } else if (eql(cmd, "status")) {
-        try commandStatus(init.io, init.environ_map);
+        try commandStatus(init.gpa, init.io, init.environ_map);
     } else if (eql(cmd, "track")) {
         return try commandAppendMany(&args, init.gpa, init.io, tracked_paths_path, "tracked path");
     } else if (eql(cmd, "ignore")) {
@@ -38,7 +39,7 @@ pub fn main(init: std.process.Init) !u8 {
     return 0;
 }
 
-fn commandStatus(io: std.Io, environ_map: *const std.process.Environ.Map) !void {
+fn commandStatus(allocator: std.mem.Allocator, io: std.Io, environ_map: *const std.process.Environ.Map) !void {
     std.debug.print("despertaferro runtime\n", .{});
     std.debug.print("manifest: {s}\n", .{present(io, manifest_path)});
     std.debug.print("denylist: {s}\n", .{present(io, denylist_path)});
@@ -52,7 +53,45 @@ fn commandStatus(io: std.Io, environ_map: *const std.process.Environ.Map) !void 
         std.debug.print("worktree: unknown (HOME is not set)\n", .{});
     }
 
-    std.debug.print("git backend: pending native implementation; no git binary invoked\n", .{});
+    const repo_path = try resolveRepoPath(allocator, environ_map);
+    defer allocator.free(repo_path);
+
+    std.debug.print("git backend: native filesystem plumbing\n", .{});
+    std.debug.print("repo path: {s}\n", .{repo_path});
+
+    var repo = git_backend.openBare(allocator, io, repo_path) catch |err| {
+        switch (err) {
+            error.NotGitRepository => std.debug.print("repo: missing\n", .{}),
+            error.NotBareRepository => std.debug.print("repo: present but not bare\n", .{}),
+            error.InvalidHead => std.debug.print("repo: invalid HEAD\n", .{}),
+            error.UnsupportedHead => std.debug.print("repo: unsupported HEAD\n", .{}),
+            else => return err,
+        }
+        return;
+    };
+    defer repo.deinit(allocator);
+
+    std.debug.print("repo: bare\n", .{});
+    switch (repo.head) {
+        .branch => |branch| std.debug.print("active branch: {s}\n", .{branch}),
+        .detached => |object_id| std.debug.print("detached HEAD: {s}\n", .{object_id}),
+    }
+}
+
+fn resolveRepoPath(allocator: std.mem.Allocator, environ_map: *const std.process.Environ.Map) ![]const u8 {
+    if (environ_map.get("DESPERTA_REPO_PATH")) |value| {
+        return allocator.dupe(u8, value);
+    }
+
+    if (environ_map.get("XDG_STATE_HOME")) |value| {
+        return std.fmt.allocPrint(allocator, "{s}/despertaferro/repo.git", .{value});
+    }
+
+    if (environ_map.get("HOME")) |value| {
+        return std.fmt.allocPrint(allocator, "{s}/.local/state/despertaferro/repo.git", .{value});
+    }
+
+    return error.MissingHome;
 }
 
 fn commandAppendMany(
