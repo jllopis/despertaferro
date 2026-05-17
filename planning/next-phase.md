@@ -446,6 +446,103 @@ está en las ramas del bare repo del usuario.
 
 ---
 
+## 7. UI/UX de la instalación — salida compacta y moderna
+
+### Motivación
+El bootstrap escupe la salida cruda de `pacman` y `yay` (28 paquetes con sus
+deps → ~150 líneas de barras, descargas, hooks, opcionales). Para una primera
+instalación "tipo Omarchy" esto es lo opuesto a una buena UX: el usuario debería
+ver algo limpio tipo:
+
+```
+✓ system update
+⠼ installing zsh        ████████░░░░  18/28
+```
+
+en lugar del scroll de pacman.
+
+### Dónde está realmente el ruido
+- `install.sh` propio: 6 líneas con `log/warn/die`. Ya está fino, no merece la
+  pena tocarlo.
+- `desperta bootstrap` phase 4 (instalación de paquetes vía pacman/yay): aquí
+  está el 95% del ruido. Es lo que hay que abordar.
+- Phases 5 (deploy dotfiles) y 7 (track configs): cada uno imprime una línea
+  por archivo. Aceptable, pero también colapsable.
+
+### Opciones técnicas
+
+#### A) `gum` (charmbracelet) como wrapper externo
+Ventajas: efecto visual moderno gratis, syntax muy limpia (`gum spin -- ...`,
+`gum log info "..."`, `gum format`).
+Coste: dependencia extra. `gum` se instala desde `extra` en Arch (paquete
+oficial). Habría que añadirlo a `install.sh` antes que nada.
+
+Modelo:
+1. `install.sh` instala `gum` como uno de los primeros paquetes.
+2. Para sus propios mensajes, sustituye `log/warn` por `gum log` o
+   `gum style`.
+3. Para la llamada a `desperta bootstrap`, espera que el binario emita
+   **eventos estructurados** (JSON line-delimited) por stderr o por un FD
+   separado, y los renderiza con `gum spin`/`gum progress`.
+
+#### B) Renderizado nativo en `desperta bootstrap`
+Ventajas: cero dependencias, control total, mismo look en todas las
+plataformas.
+Coste: hay que escribir el renderer (~300 líneas de Zig: pipe del subprocess,
+parser de líneas de pacman, ANSI escape codes, redraw).
+
+Modelo:
+1. `pkgmgr.runInstall` captura stdout en lugar de heredarlo.
+2. Detecta el patrón de pacman `( N/M) installing X` y renderiza una línea
+   con `\r` (carriage return) que se actualiza in-place.
+3. Salida completa accesible con `--verbose` para debugging.
+
+#### C) Híbrido: bootstrap emite eventos, gum los renderiza
+El binario es "tonto" — emite `event:install_start name=zsh idx=1 total=28`
+por stderr. Un wrapper bash (puede ser parte de `install.sh` o un binario
+aparte `desperta-tui`) lee los eventos y los renderiza con `gum` o
+nativamente.
+
+Ventaja: separa lógica y presentación. Cualquiera puede escribir su propio
+renderer (terminal cool, JSON para CI, plain para logs).
+Coste: definir el protocolo de eventos. Más trabajo upfront pero más limpio.
+
+### Recomendación
+Opción **C** a medio plazo, pero **A** para arrancar rápido si queremos efecto
+inmediato. Con A:
+- Coste: añadir `gum` a `install.sh` + wrappear las llamadas con `gum spin`.
+- ~30 minutos de trabajo.
+- Trade-off: añade una dep que el usuario debe instalar antes del bootstrap.
+
+Si queremos algo más limpio y sin deps, **B** es viable pero ~1 día de
+trabajo. **C** es el "endgame" cuando el bootstrap haya estabilizado más.
+
+### Eventos propuestos (para B/C)
+
+```
+phase:start  name=install_packages  total=28
+pkg:start    name=zsh idx=1
+pkg:done     name=zsh idx=1
+pkg:error    name=foo idx=12 error=...
+phase:done   name=install_packages  duration_ms=42137
+```
+
+Stderr line-delimited (parseable, no JSON para simplicidad).
+
+### Decisiones a tomar
+- ¿A, B, o C?
+- Si A: ¿`gum` como dep obligatoria de `install.sh` o opcional con fallback?
+- Para B/C: ¿`--quiet` por defecto + `--verbose` opt-in, o al revés?
+
+### Estado
+- [ ] Decidir A/B/C.
+- [ ] Diseñar protocolo de eventos (si B o C).
+- [ ] Refactor `pkgmgr.runInstall` para emitir eventos (B/C) o silenciar (A).
+- [ ] Renderer (gum wrapper en bash, o nativo Zig).
+- [ ] Flag `--verbose` para pasar a través el output crudo.
+
+---
+
 ## Orden recomendado
 
 1. **Releases (#1)** — quita la dependencia de Zig en máquinas cliente,
@@ -457,7 +554,9 @@ está en las ramas del bare repo del usuario.
    las cosas (sync puede usar el inventario para decidir qué stagear).
 4. **Host config local (#6)** — pequeño cambio adyacente a #5, hacerlos juntos.
 5. **`desperta sync` (#3)** — cierra el ciclo bootstrap → track → sync.
-6. **Linger (#2)** — quality-of-life independiente, en cualquier momento.
+6. **UI/UX con gum o nativo (#7)** — después de tener el modelo de package v2
+   estable; los eventos pueden derivarse de la lógica nueva sin reescribir.
+7. **Linger (#2)** — quality-of-life independiente, en cualquier momento.
 
 ## No-goals para esta fase
 
