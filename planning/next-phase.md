@@ -181,15 +181,92 @@ podían generar paths como `hosts/hosts/<name>` si alguien los combinaba.
 
 ---
 
+## 4. Comandos location-independent
+
+### Motivación
+Hoy varios comandos leen archivos del proyecto resolviéndolos relativos a
+`cwd`:
+
+| Path | Quién lo lee |
+|---|---|
+| `config/packages.toml` | `list`, `install`, `bootstrap`, `service install` |
+| `config/denylist.txt` | `track`, `ignore`, staging en phase 7 |
+| `config/tracked-paths.txt` | `track`, `status`, `snapshot`, `sync` |
+| `desperta.toml` | `doctor`, `bootstrap`, `status` |
+| `dotfiles/default/` | `bootstrap` phase 5 |
+
+Si el usuario ejecuta `desperta list` desde `~` o `/tmp`, falla. Hoy se exige
+`cd ~/.local/share/despertaferro` o `DESPERTA_REPO` (que solo unos pocos
+caminos respetan). Inconsistente y propenso a errores.
+
+### Modelo propuesto
+Resolver el "project dir" una sola vez al arranque, con orden de precedencia
+explícito:
+
+1. Flag CLI `--repo <path>` (nuevo, global).
+2. Env `DESPERTA_REPO`.
+3. Campo `project_dir` en el runtime config (`~/.config/despertaferro/config.toml`).
+4. Fallback dev: subir directorios desde `cwd` buscando un `desperta.toml`.
+5. Si ninguno: error claro con instrucciones (`export DESPERTA_REPO=... o cd al repo o pasar --repo`).
+
+Una vez resuelto, **todas** las lecturas de catálogo / manifest / templates /
+denylist / tracked-paths se hacen relativas a `project_dir`. `cwd` deja de
+importar.
+
+### Implementación
+
+- Extender `config.Config` con `project_dir: ?[]const u8`.
+- `install.sh` (y `desperta init`) escriben `project_dir = "..."` en el
+  runtime config tras clonar el repo, así que tras la primera instalación el
+  binario sabe dónde está sin más configuración.
+- Añadir helper `resolveProjectDir(allocator, environ_map, cfg, flag) ![]const u8`
+  paralelo al ya existente `resolveRepoPath` (este último es para el **bare
+  repo de dotfiles**, conceptos distintos — documentar bien).
+- Añadir `flags.repo: ?[]const u8` en `Flags.parse`.
+- Reemplazar todas las cadenas literales `"config/packages.toml"`,
+  `"config/denylist.txt"`, etc., por `std.fmt.allocPrint("{s}/config/packages.toml", .{project_dir})`.
+- Centralizar las constantes en un helper (`paths.zig`?) para no esparcir el
+  cambio.
+- Mostrar `project_dir` resuelto en `desperta status` y `desperta doctor`,
+  útil para diagnosticar dónde está mirando.
+
+### Compatibilidad
+- Quien lance `desperta list` desde el repo seguirá funcionando: el fallback
+  #4 (subir buscando `desperta.toml`) lo cubre sin tocar config.
+- Quien haga `cd` al repo y exporte `DESPERTA_REPO` también seguirá: #2 gana
+  sobre #3.
+- Cambio rompedor para usuarios que dependan del comportamiento `cwd`-relativo
+  sin tener `DESPERTA_REPO` ni runtime config — aceptable, esto es un fix.
+
+### Estado
+- [ ] Añadir `project_dir` a `config.Config` (`config.zig`).
+- [ ] `install.sh` escribe `project_dir` al runtime config tras clonar.
+- [ ] `desperta init` también lo escribe si no existe.
+- [ ] Añadir `--repo <path>` global en `Flags.parse`.
+- [ ] Helper `resolveProjectDir` con la cascada de 5 niveles.
+- [ ] Centralizar las 5 rutas hardcodeadas en `paths.zig` (o constantes).
+- [ ] Mostrar `project_dir` en `status` y `doctor`.
+- [ ] Tests: ejecución desde `cwd` distinto, con env, con flag, con runtime
+      config.
+
+### Bonus
+Una vez todos los comandos toman `project_dir` consistentemente, **el usuario
+puede mover el repo a donde quiera** (`~/dev/despertaferro`, `/opt/despertaferro`,
+lo que sea) y desperta lo encuentra. Es flexibilidad real.
+
+---
+
 ## Orden recomendado
 
 1. **Releases primero** — quita la dependencia de Zig en máquinas cliente,
    beneficio inmediato para cualquier nueva instalación.
-2. **`desperta sync`** — cierra el ciclo principal (bootstrap → track → sync →
-   re-instalar en otra máquina). Sin esto, el bare repo es "write-only" en
-   máquinas reales.
-3. **Linger** — quality-of-life, no bloqueante. Se puede hacer en cualquier
-   momento.
+2. **Comandos location-independent (#4)** — base limpia para todo lo demás;
+   evita que `sync` y otros futuros comandos hereden el problema.
+3. **`desperta sync` (#3)** — cierra el ciclo principal (bootstrap → track →
+   sync → re-instalar en otra máquina). Sin esto, el bare repo es "write-only"
+   en máquinas reales.
+4. **Linger (#2)** — quality-of-life, no bloqueante. Se puede hacer en
+   cualquier momento.
 
 ## No-goals para esta fase
 
