@@ -446,13 +446,13 @@ está en las ramas del bare repo del usuario.
 
 ---
 
-## 7. UI/UX de la instalación — salida compacta y moderna
+## 7. UI/UX de la instalación — renderer nativo en Zig
 
 ### Motivación
 El bootstrap escupe la salida cruda de `pacman` y `yay` (28 paquetes con sus
 deps → ~150 líneas de barras, descargas, hooks, opcionales). Para una primera
-instalación "tipo Omarchy" esto es lo opuesto a una buena UX: el usuario debería
-ver algo limpio tipo:
+instalación "tipo Omarchy" esto es lo opuesto a una buena UX: el usuario
+debería ver algo limpio tipo:
 
 ```
 ✓ system update
@@ -461,85 +461,89 @@ ver algo limpio tipo:
 
 en lugar del scroll de pacman.
 
-### Dónde está realmente el ruido
-- `install.sh` propio: 6 líneas con `log/warn/die`. Ya está fino, no merece la
-  pena tocarlo.
-- `desperta bootstrap` phase 4 (instalación de paquetes vía pacman/yay): aquí
-  está el 95% del ruido. Es lo que hay que abordar.
+### Dónde está el ruido
+- `install.sh` propio: 6 líneas con `log/warn/die`. Ya está fino, no se toca.
+- `desperta bootstrap` phase 4 (instalación de paquetes vía pacman/yay): el
+  95% del ruido. Es lo que hay que abordar.
 - Phases 5 (deploy dotfiles) y 7 (track configs): cada uno imprime una línea
-  por archivo. Aceptable, pero también colapsable.
+  por archivo. Aceptable, pero también colapsable en la línea de estado.
 
-### Opciones técnicas
+### Enfoque elegido: nativo en Zig
+Toda la lógica de presentación vive dentro del binario, sin dependencias
+externas. Razón principal: la salida moderna la pinta el propio desperta, no
+`install.sh` — meter `gum` como dep extra solo para wrappear 6 líneas del
+script no aporta nada, y dentro de bootstrap haría falta también un canal
+estructurado para que un renderer externo entendiera el progreso.
 
-#### A) `gum` (charmbracelet) como wrapper externo
-Ventajas: efecto visual moderno gratis, syntax muy limpia (`gum spin -- ...`,
-`gum log info "..."`, `gum format`).
-Coste: dependencia extra. `gum` se instala desde `extra` en Arch (paquete
-oficial). Habría que añadirlo a `install.sh` antes que nada.
+Hacerlo en Zig:
+- Cero dependencias en runtime (binario sigue siendo standalone).
+- Mismo look en cualquier máquina, sin importar qué tenga instalado.
+- Control total sobre lo que se muestra, lo que se colapsa y lo que se
+  expande con `--verbose`.
 
-Modelo:
-1. `install.sh` instala `gum` como uno de los primeros paquetes.
-2. Para sus propios mensajes, sustituye `log/warn` por `gum log` o
-   `gum style`.
-3. Para la llamada a `desperta bootstrap`, espera que el binario emita
-   **eventos estructurados** (JSON line-delimited) por stderr o por un FD
-   separado, y los renderiza con `gum spin`/`gum progress`.
+### Implementación
 
-#### B) Renderizado nativo en `desperta bootstrap`
-Ventajas: cero dependencias, control total, mismo look en todas las
-plataformas.
-Coste: hay que escribir el renderer (~300 líneas de Zig: pipe del subprocess,
-parser de líneas de pacman, ANSI escape codes, redraw).
+1. **Captura de stdout/stderr del subprocess**. `pkgmgr.runInstall` deja de
+   heredar stdio (lo que hace que pacman pinte directo en la terminal) y abre
+   pipes. Lee línea a línea con un `std.Io.Reader`.
 
-Modelo:
-1. `pkgmgr.runInstall` captura stdout en lugar de heredarlo.
-2. Detecta el patrón de pacman `( N/M) installing X` y renderiza una línea
-   con `\r` (carriage return) que se actualiza in-place.
-3. Salida completa accesible con `--verbose` para debugging.
+2. **Parser de pacman/yay**. Reconocer los patrones clave:
+   - `:: Retrieving packages...` → fase "descarga".
+   - `( N/M) installing X` → progreso `N/M`, paquete activo `X`.
+   - `( N/M) checking package integrity` → ignorar / fase preparación.
+   - `error:` → propagar al usuario.
+   - Optional dependencies, hooks, etc. → silenciar por defecto.
 
-#### C) Híbrido: bootstrap emite eventos, gum los renderiza
-El binario es "tonto" — emite `event:install_start name=zsh idx=1 total=28`
-por stderr. Un wrapper bash (puede ser parte de `install.sh` o un binario
-aparte `desperta-tui`) lee los eventos y los renderiza con `gum` o
-nativamente.
+3. **Renderer**. Una línea de estado que se actualiza in-place con `\r`:
+   ```
+   ⠼ installing zsh        ████████░░░░  18/28
+   ```
+   Implementación: pequeño módulo `progress.zig` con:
+   - Spinner ANSI (lista de glyphs braille, índice rotativo).
+   - Barra Unicode (`█░`) construida a partir de `current/total`.
+   - Funciones `start(total)`, `tick(name, current)`, `done(label)`, `fail(label)`.
+   - Detecta si stdout es TTY; si no, fallback a una línea por evento.
 
-Ventaja: separa lógica y presentación. Cualquiera puede escribir su propio
-renderer (terminal cool, JSON para CI, plain para logs).
-Coste: definir el protocolo de eventos. Más trabajo upfront pero más limpio.
+4. **Flag `--verbose`** en `bootstrap`. Pasa-a-través la salida cruda de
+   pacman/yay sin filtrar ni renderer. Pensado para debugging.
 
-### Recomendación
-Opción **C** a medio plazo, pero **A** para arrancar rápido si queremos efecto
-inmediato. Con A:
-- Coste: añadir `gum` a `install.sh` + wrappear las llamadas con `gum spin`.
-- ~30 minutos de trabajo.
-- Trade-off: añade una dep que el usuario debe instalar antes del bootstrap.
+5. **Phases 5 y 7** también pasan por `progress.zig`:
+   - Phase 5 muestra `⠼ deploying dotfiles   12/24` en lugar de N líneas.
+   - Phase 7 muestra `⠼ staging configs      8/31`.
+   - Con `--verbose`, vuelve al output detallado actual.
 
-Si queremos algo más limpio y sin deps, **B** es viable pero ~1 día de
-trabajo. **C** es el "endgame" cuando el bootstrap haya estabilizado más.
+### Eventos internos (no exposed)
 
-### Eventos propuestos (para B/C)
+No hace falta protocolo público hacia stderr — el renderer vive en el mismo
+proceso que el parser. Internamente:
 
+```zig
+const Event = union(enum) {
+    phase_start: struct { name: []const u8, total: ?u32 },
+    item_start: struct { name: []const u8, idx: u32 },
+    item_done: struct { name: []const u8 },
+    item_error: struct { name: []const u8, message: []const u8 },
+    phase_done: struct { duration_ms: u64 },
+};
 ```
-phase:start  name=install_packages  total=28
-pkg:start    name=zsh idx=1
-pkg:done     name=zsh idx=1
-pkg:error    name=foo idx=12 error=...
-phase:done   name=install_packages  duration_ms=42137
-```
 
-Stderr line-delimited (parseable, no JSON para simplicidad).
+Cada fase publica eventos al renderer; el renderer decide qué pintar.
 
-### Decisiones a tomar
-- ¿A, B, o C?
-- Si A: ¿`gum` como dep obligatoria de `install.sh` o opcional con fallback?
-- Para B/C: ¿`--quiet` por defecto + `--verbose` opt-in, o al revés?
+### Color y accesibilidad
+- Respetar `NO_COLOR` env var (skip colores si está seteada).
+- Detectar `TERM=dumb` → fallback plain.
+- Símbolos Unicode con fallback ASCII si el locale no soporta (raro hoy, pero
+  barato).
 
 ### Estado
-- [ ] Decidir A/B/C.
-- [ ] Diseñar protocolo de eventos (si B o C).
-- [ ] Refactor `pkgmgr.runInstall` para emitir eventos (B/C) o silenciar (A).
-- [ ] Renderer (gum wrapper en bash, o nativo Zig).
-- [ ] Flag `--verbose` para pasar a través el output crudo.
+- [ ] Crear `src/progress.zig` con spinner, barra y detección de TTY.
+- [ ] Refactor `pkgmgr.runInstall` para capturar stdio en lugar de heredar.
+- [ ] Parser de líneas pacman/yay → eventos internos.
+- [ ] Renderer consume eventos y pinta la línea de estado.
+- [ ] Integrar en phases 5 y 7 también.
+- [ ] Flag global `--verbose` que pasa-a-través el output crudo.
+- [ ] Respetar `NO_COLOR` y `TERM=dumb`.
+- [ ] Tests del parser con fixtures de output real de pacman.
 
 ---
 
