@@ -8,7 +8,8 @@
 - [x] Crear denylist de seguridad en `config/denylist.txt`.
 - [x] Crear backlog por funcionalidad en `planning/*/tasks.md`.
 - [x] Implementar primer CLI con `status`, `track`, `ignore`, `sync` y `doctor`.
-- [ ] Conectar backend Git nativo.
+- [x] Conectar backend Git nativo.
+- [x] Implementar gestion de paquetes (list, install, bootstrap).
 - [x] Ejecutar limpieza destructiva de historia remota tras confirmacion.
 
 ## Orden propuesto

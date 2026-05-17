@@ -5,8 +5,8 @@
 - [x] Implementar apertura de repo bare.
 - [x] Implementar lectura de rama activa.
 - [x] Implementar status de worktree.
-- [ ] Implementar add/remove de paths.
-- [ ] Implementar commit.
+- [x] Implementar add/remove de paths.
+- [x] Implementar commit.
 - [ ] Implementar fetch/pull/push.
 - [ ] Implementar gestion segura de conflictos.
 - [ ] Implementar pruebas contra repositorios temporales.

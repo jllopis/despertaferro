@@ -1,0 +1,23 @@
+[user]
+	name =
+	email =
+
+[core]
+	excludesfile = ~/.config/git/ignore
+	autocrlf = input
+	editor = nvim
+
+[pull]
+	rebase = true
+
+[push]
+	autoSetupRemote = true
+
+[init]
+	defaultBranch = master
+
+[alias]
+	st = status
+	co = checkout
+	br = branch
+	lg = log --oneline --graph --decorate --all

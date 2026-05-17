@@ -1,0 +1,5 @@
+.git
+.zig-cache
+# Keep zig-out/bin/desperta — needed by Dockerfile
+zig-out/lib
+zig-out/include

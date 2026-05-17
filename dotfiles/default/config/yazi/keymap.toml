@@ -1,0 +1,14 @@
+[[manager.prepend_keymap]]
+on  = ["g", "h"]
+run = "cd ~"
+desc = "Go to home"
+
+[[manager.prepend_keymap]]
+on  = ["g", "c"]
+run = 'cd "~/.config"'
+desc = "Go to config"
+
+[[manager.prepend_keymap]]
+on  = ["g", "d"]
+run = 'cd "~/.local/share/despertaferro"'
+desc = "Go to despertaferro"

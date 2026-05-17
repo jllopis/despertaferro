@@ -1,0 +1,578 @@
+# despertaferro package catalog
+# profiles: base, arch, macos, hyprland, work
+# platforms: linux, macos
+# install methods: pacman (+ aur via yay/paru), brew (+ brew_cask), script, skip
+
+# ─── Shells & prompts ─────────────────────────────────────────────────────────
+
+[[package]]
+id = "zsh"
+description = "Z Shell"
+profiles = ["base", "test"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/zsh", "~/.zshrc", "~/.zprofile", "~/.zshenv"]
+pacman = "zsh"
+brew = "zsh"
+post_cmd = "chsh -s /usr/bin/zsh"
+
+[[package]]
+id = "starship"
+description = "Cross-shell prompt"
+profiles = ["base", "test"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/starship.toml"]
+pacman = "starship"
+brew = "starship"
+
+# ─── Terminals ────────────────────────────────────────────────────────────────
+
+[[package]]
+id = "alacritty"
+description = "GPU-accelerated terminal emulator"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/alacritty"]
+pacman = "alacritty"
+brew_cask = "alacritty"
+
+[[package]]
+id = "foot"
+description = "Wayland-native terminal emulator"
+profiles = ["arch"]
+platforms = ["linux"]
+config_paths = ["~/.config/foot"]
+pacman = "foot"
+
+# ─── Editors ──────────────────────────────────────────────────────────────────
+
+[[package]]
+id = "neovim"
+description = "Hyperextensible Vim-based text editor"
+profiles = ["base", "test"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/nvim"]
+pacman = "neovim"
+brew = "neovim"
+check_cmd = "nvim"
+
+[[package]]
+id = "zed"
+description = "High-performance multiplayer code editor"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/zed"]
+aur = "zed"
+brew_cask = "zed"
+
+# ─── Terminal multiplexer & file manager ──────────────────────────────────────
+
+[[package]]
+id = "tmux"
+description = "Terminal multiplexer"
+profiles = ["base", "test"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/tmux", "~/.tmux.conf"]
+pacman = "tmux"
+brew = "tmux"
+
+[[package]]
+id = "yazi"
+description = "Blazing-fast terminal file manager"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/yazi"]
+pacman = "yazi"
+brew = "yazi"
+check_cmd = "ya"
+
+# ─── CLI essentials ───────────────────────────────────────────────────────────
+
+[[package]]
+id = "fzf"
+description = "Command-line fuzzy finder"
+profiles = ["base", "test"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/fzf"]
+pacman = "fzf"
+brew = "fzf"
+
+[[package]]
+id = "ripgrep"
+description = "Fast grep replacement"
+profiles = ["base", "test"]
+platforms = ["linux", "macos"]
+pacman = "ripgrep"
+brew = "ripgrep"
+check_cmd = "rg"
+
+[[package]]
+id = "zoxide"
+description = "Smarter cd command"
+profiles = ["base", "test"]
+platforms = ["linux", "macos"]
+pacman = "zoxide"
+brew = "zoxide"
+
+[[package]]
+id = "jq"
+description = "Command-line JSON processor"
+profiles = ["base", "test"]
+platforms = ["linux", "macos"]
+pacman = "jq"
+brew = "jq"
+
+[[package]]
+id = "btop"
+description = "Resource monitor"
+profiles = ["base", "test"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/btop"]
+pacman = "btop"
+brew = "btop"
+
+[[package]]
+id = "wget"
+description = "Network downloader"
+profiles = ["base", "test"]
+platforms = ["linux", "macos"]
+pacman = "wget"
+brew = "wget"
+
+[[package]]
+id = "curl"
+description = "HTTP/data transfer tool"
+profiles = ["base", "test"]
+platforms = ["linux", "macos"]
+pacman = "curl"
+brew = "curl"
+
+[[package]]
+id = "rsync"
+description = "Fast, incremental file transfer"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "rsync"
+brew = "rsync"
+
+[[package]]
+id = "tree"
+description = "Directory tree viewer"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "tree"
+brew = "tree"
+
+[[package]]
+id = "xz"
+description = "XZ compression utilities"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "xz"
+brew = "xz"
+
+[[package]]
+id = "webp"
+description = "WebP image tools"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "libwebp"
+brew = "webp"
+check_cmd = "cwebp"
+
+[[package]]
+id = "ffmpeg"
+description = "Audio/video conversion"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "ffmpeg"
+brew = "ffmpeg"
+
+[[package]]
+id = "mpv"
+description = "Media player"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/mpv"]
+pacman = "mpv"
+brew_cask = "mpv"
+
+[[package]]
+id = "syncthing"
+description = "Continuous file synchronization"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/syncthing"]
+pacman = "syncthing"
+brew = "syncthing"
+service_user = "syncthing"
+
+[[package]]
+id = "nmap"
+description = "Network exploration and security scanner"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "nmap"
+brew = "nmap"
+
+[[package]]
+id = "pandoc"
+description = "Universal document converter"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "pandoc"
+brew = "pandoc"
+
+[[package]]
+id = "sqlite"
+description = "Self-contained SQL database engine"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "sqlite"
+brew = "sqlite"
+check_cmd = "sqlite3"
+
+# ─── Version control ──────────────────────────────────────────────────────────
+
+[[package]]
+id = "git"
+description = "Distributed version control"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.gitconfig", "~/.config/git"]
+pacman = "git"
+brew = "git"
+
+[[package]]
+id = "gh"
+description = "GitHub CLI"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "github-cli"
+brew = "gh"
+
+# ─── DevOps & cloud ───────────────────────────────────────────────────────────
+
+[[package]]
+id = "docker"
+description = "Container platform"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.docker"]
+pacman = "docker"
+brew_cask = "docker"
+service_system = "docker"
+groups = ["docker"]
+
+[[package]]
+id = "docker-compose"
+description = "Multi-container Docker tool"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "docker-compose"
+brew = "docker-compose"
+check_cmd = "docker"
+
+[[package]]
+id = "awscli"
+description = "AWS command-line interface"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.aws"]
+pacman = "aws-cli-v2"
+brew = "awscli"
+check_cmd = "aws"
+
+[[package]]
+id = "gcloud-cli"
+description = "Google Cloud SDK"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/gcloud"]
+aur = "google-cloud-cli"
+brew_cask = "google-cloud-sdk"
+check_cmd = "gcloud"
+
+[[package]]
+id = "cloudflare-wrangler"
+description = "Cloudflare Workers CLI"
+profiles = ["work"]
+platforms = ["linux", "macos"]
+aur = "cloudflare-wrangler-bin"
+brew = "cloudflare-wrangler"
+check_cmd = "wrangler"
+
+# ─── Security ─────────────────────────────────────────────────────────────────
+
+[[package]]
+id = "gnupg"
+description = "GNU Privacy Guard"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.gnupg"]
+pacman = "gnupg"
+brew = "gnupg"
+check_cmd = "gpg"
+post_cmd = "chmod 700 $HOME/.gnupg"
+
+[[package]]
+id = "1password-cli"
+description = "1Password command-line tool"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+aur = "1password-cli"
+brew = "1password-cli"
+check_cmd = "op"
+
+# ─── Programming languages & runtimes ─────────────────────────────────────────
+
+[[package]]
+id = "python"
+description = "Python programming language"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "python"
+brew = "python"
+check_cmd = "python3"
+
+[[package]]
+id = "go"
+description = "Go programming language"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "go"
+brew = "go"
+
+[[package]]
+id = "zig"
+description = "Zig programming language"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "zig"
+brew = "zig"
+
+[[package]]
+id = "luajit"
+description = "LuaJIT — JIT compiler for Lua"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "luajit"
+brew = "luajit"
+
+[[package]]
+id = "rust"
+description = "Systems programming language (via rustup)"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+install_script = "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path"
+check_cmd = "rustc"
+
+[[package]]
+id = "wasmtime"
+description = "WebAssembly runtime"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+install_script = "curl https://wasmtime.dev/install.sh | bash"
+check_cmd = "wasmtime"
+
+# ─── Build tools ──────────────────────────────────────────────────────────────
+
+[[package]]
+id = "cmake"
+description = "Cross-platform build system"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "cmake"
+brew = "cmake"
+
+[[package]]
+id = "m4"
+description = "GNU M4 macro processor"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "m4"
+brew = "m4"
+
+[[package]]
+id = "gnutls"
+description = "GNU TLS library"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "gnutls"
+brew = "gnutls"
+
+# ─── AI / coding tools ────────────────────────────────────────────────────────
+
+[[package]]
+id = "codex"
+description = "OpenAI Codex CLI"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+skip = "npm install -g @openai/codex"
+check_cmd = "codex"
+
+[[package]]
+id = "opencode"
+description = "OpenCode AI coding agent"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+skip = "see https://opencode.ai for install instructions"
+check_cmd = "opencode"
+
+[[package]]
+id = "lmstudio"
+description = "Run LLMs locally"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+skip = "download from https://lmstudio.ai"
+check_cmd = "lmstudio"
+
+[[package]]
+id = "claude-desktop"
+description = "Claude desktop application"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+skip = "download from https://claude.ai/download"
+check_cmd = "claude"
+
+[[package]]
+id = "claude-code"
+description = "Claude Code CLI"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+skip = "npm install -g @anthropic-ai/claude-code"
+check_cmd = "claude"
+
+# ─── Browsers ─────────────────────────────────────────────────────────────────
+
+[[package]]
+id = "firefox"
+description = "Mozilla Firefox"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "firefox"
+brew_cask = "firefox"
+
+[[package]]
+id = "vivaldi"
+description = "Vivaldi Browser"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+aur = "vivaldi"
+brew_cask = "vivaldi"
+
+# ─── GUI applications ─────────────────────────────────────────────────────────
+
+[[package]]
+id = "obsidian"
+description = "Knowledge base and note-taking"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/obsidian"]
+aur = "obsidian"
+brew_cask = "obsidian"
+
+[[package]]
+id = "zotero"
+description = "Research reference manager"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+aur = "zotero-bin"
+brew_cask = "zotero"
+check_cmd = "zotero"
+
+[[package]]
+id = "vlc"
+description = "Cross-platform media player"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "vlc"
+brew_cask = "vlc"
+
+[[package]]
+id = "spotify"
+description = "Music streaming"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+aur = "spotify"
+brew_cask = "spotify"
+
+[[package]]
+id = "gimp"
+description = "GNU Image Manipulation Program"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+config_paths = ["~/.config/GIMP"]
+pacman = "gimp"
+brew_cask = "gimp"
+
+[[package]]
+id = "libreoffice"
+description = "Free office suite"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "libreoffice-fresh"
+brew_cask = "libreoffice"
+check_cmd = "libreoffice"
+
+[[package]]
+id = "signal"
+description = "Private messenger"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+aur = "signal-desktop"
+brew_cask = "signal"
+
+[[package]]
+id = "whatsapp"
+description = "WhatsApp messaging"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+skip = "use WhatsApp Web or: brew install --cask whatsapp"
+brew_cask = "whatsapp"
+check_cmd = "whatsapp"
+
+# ─── Arch Linux specific ──────────────────────────────────────────────────────
+
+[[package]]
+id = "aircrack-ng"
+description = "Wireless network security auditing"
+profiles = ["arch"]
+platforms = ["linux"]
+pacman = "aircrack-ng"
+
+[[package]]
+id = "wireshark"
+description = "Network protocol analyzer"
+profiles = ["arch"]
+platforms = ["linux"]
+config_paths = ["~/.config/wireshark"]
+pacman = "wireshark-qt"
+check_cmd = "wireshark"
+
+[[package]]
+id = "font-iosevka-nerd-font"
+description = "Iosevka Nerd Font"
+profiles = ["arch"]
+platforms = ["linux"]
+aur = "ttf-iosevka-nerd"
+check_cmd = ""
+font_pkg = true
+
+[[package]]
+id = "font-iosevka-term-nerd-font"
+description = "Iosevka Term Nerd Font"
+profiles = ["arch"]
+platforms = ["linux"]
+aur = "ttf-iosevka-term-nerd"
+check_cmd = ""
+font_pkg = true
+
+# ─── Hyprland desktop ─────────────────────────────────────────────────────────
+
+[[package]]
+id = "hyprland"
+description = "Dynamic tiling Wayland compositor"
+profiles = ["hyprland"]
+platforms = ["linux"]
+config_paths = ["~/.config/hypr"]
+pacman = "hyprland"

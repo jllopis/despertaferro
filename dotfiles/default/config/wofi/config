@@ -1,0 +1,14 @@
+show=drun
+width=600
+height=400
+location=center
+allow_markup=false
+allow_images=true
+image_size=24
+columns=1
+no_actions=true
+prompt=Search...
+filter_rate=100
+hide_scroll=true
+normal_window=false
+insensitive=true
