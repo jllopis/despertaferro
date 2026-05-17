@@ -256,17 +256,208 @@ lo que sea) y desperta lo encuentra. Es flexibilidad real.
 
 ---
 
+## 5. Package management v2 — SQLite como inventario local
+
+### Motivación
+Hoy `config/packages.toml` describe **todo lo que podría instalar**, y el
+binario lo lee en cada `list`/`install`/`bootstrap`. Eso confunde dos cosas:
+
+- **Catálogo** (recetario): "esto es lo que sé instalar, con sus configs".
+  Versioned, compartido, vive en el repo del proyecto.
+- **Inventario** (qué tiene tu máquina): "esto es lo que **tú** has decidido
+  gestionar". Local, mutable, vive en tu home.
+
+Mezclarlos provoca varios problemas:
+- Tras bootstrap, el catálogo deja de reflejar tu realidad (pueden faltar cosas
+  que instalaste a mano, sobrar cosas de perfiles que no usaste).
+- "Gestionar configs" significa cosas distintas para cada paquete: si
+  desperta no gestiona su config, no debería aparecer en `list`.
+- No hay forma de añadir un paquete ad-hoc (algo que no esté en el TOML) y
+  trackear su config sin editar el catálogo.
+
+### Modelo
+- **`config/packages.toml`** queda como **recetario**: lookup table consultada
+  solo durante bootstrap inicial o cuando haces `package add <name>`.
+- **`$XDG_STATE_HOME/despertaferro/managed.db`** (SQLite) = inventario real
+  con los paquetes cuya configuración estás gestionando con desperta.
+- **`desperta package`** es la API normal post-bootstrap:
+  ```
+  desperta package add <name>                            # del catálogo
+  desperta package add <name> --config <path>...         # ad-hoc, sin catálogo
+  desperta package remove <name>                         # desinstala + olvida
+  desperta package list                                  # contenido de la DB
+  ```
+
+### Schema (borrador)
+
+```sql
+CREATE TABLE managed_packages (
+    id            INTEGER PRIMARY KEY,
+    name          TEXT NOT NULL UNIQUE,
+    source        TEXT NOT NULL,           -- 'bootstrap' | 'manual' | 'catalog'
+    installed_at  INTEGER NOT NULL,        -- unix epoch
+    pacman_name   TEXT,                    -- nombre real instalado (puede diferir del id)
+    catalog_id    TEXT                     -- id en packages.toml si proviene de allí
+);
+
+CREATE TABLE managed_paths (
+    id         INTEGER PRIMARY KEY,
+    package_id INTEGER NOT NULL REFERENCES managed_packages(id) ON DELETE CASCADE,
+    path       TEXT NOT NULL,              -- absoluto o ~/...
+    UNIQUE (package_id, path)
+);
+
+CREATE TABLE meta (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
+-- meta: schema_version, last_bootstrap_at, etc.
+```
+
+### SQLite backend
+**Decisión**: vendor `sqlite3.c` directamente en el repo. Razones:
+- Cero dependencias externas en runtime (binario sigue siendo standalone).
+- Solo crece ~700 KB el binario estático.
+- Es 1 archivo en `vendor/sqlite/sqlite3.{c,h}` — autocontenido.
+
+Pasos:
+- Crear `vendor/sqlite/` con la versión `amalgamation` oficial (la fuente
+  fusionada en un solo `.c`).
+- `build.zig`: compilar `sqlite3.c` como objeto, linkarlo al ejecutable.
+- Definir flags estándar de compilación segura: `-DSQLITE_THREADSAFE=0`
+  (single-thread), `-DSQLITE_OMIT_LOAD_EXTENSION`, `-DSQLITE_DQS=0`.
+- Crear `src/db.zig` que envuelve la API C de SQLite con un layer Zig minimo:
+  open, exec, prepare, bind, step, finalize.
+
+### Bootstrap → DB
+
+La opción elegida es **bootstrap = N llamadas a `package add` (mismo path de
+código)**, con la matiz de que en bootstrap source='bootstrap' y en uso normal
+source='manual'. Al final, `package list` muestra todo desde el día uno.
+
+Pseudocódigo:
+```zig
+for (catalog.packagesInProfile(profile)) |pkg| {
+    package.add(allocator, db, pkg.name, .source_bootstrap);
+}
+```
+
+`package.add` internamente:
+1. Si el paquete ya está en la DB → no-op (idempotencia).
+2. Si no está instalado → invocar pacman/yay/brew (lógica actual de `pkgmgr`).
+3. Resolver config_paths (catálogo o `--config`).
+4. Por cada path: añadir a `tracked-paths.txt`, stagear al index, insertar
+   en `managed_paths`.
+5. INSERT en `managed_packages` con source apropiado.
+
+### Paquetes ad-hoc (fuera del catálogo)
+
+```sh
+desperta package add htop --config ~/.config/htop/htoprc
+desperta package add htop --config ~/.config/htop/  # directorio entero
+```
+
+Sin lookup en el catálogo. El DB guarda `name="htop"`, `source="manual"`,
+`catalog_id=NULL`. Los config paths son los que el usuario indique. Para que
+funcione el install necesitamos saber **el nombre del paquete en el package
+manager** — si difiere de `<name>` se permitirá:
+```sh
+desperta package add htop --pacman htop --config ~/.config/htop/
+```
+
+### Migración del estado actual
+
+Usuarios que ya hayan corrido bootstrap antes de esta fase necesitan poblar la
+DB inicial. Solución: `desperta package backfill` (o como subcomando de
+`migrate`) que:
+1. Lee el perfil activo del manifest local.
+2. Comprueba con `pkgmgr.isInstalled` cuáles están realmente instalados.
+3. Por cada uno → `INSERT` con source='backfill'.
+
+### Implicaciones sobre `list` actual
+
+El subcomando `desperta list` actual (que itera el catálogo) cambia de
+semántica:
+- `desperta list` → muestra la DB (lo que está gestionado).
+- `desperta list --catalog` → muestra el catálogo entero (lo viejo, opt-in).
+- `desperta list --profile <name>` → catálogo filtrado por perfil (lookup
+  helper antes de hacer `package add`).
+
+### Estado
+- [ ] Vendor SQLite amalgamation en `vendor/sqlite/`.
+- [ ] `build.zig` compila + linka sqlite3.c.
+- [ ] `src/db.zig` con wrapper Zig idiomático.
+- [ ] Schema + migraciones (tabla `meta` con `schema_version`).
+- [ ] `commandPackage` subcomandos: `add`, `remove`, `list`, `backfill`.
+- [ ] Refactor `commandBootstrap` phase 4+5+6+7 para llamar a `package.add`.
+- [ ] Tests: en memoria (`:memory:` DB), con instalaciones simuladas.
+
+---
+
+## 6. Host config = local, no en el manifest compartido
+
+### Motivación
+Hoy `desperta.toml` tiene bloques `[[hosts]]` con la lista de máquinas
+conocidas y sus perfiles. Eso es leakage: cada máquina debería ser soberana
+de su identidad. Nadie más necesita saber qué máquinas tienes ni qué
+perfiles corren.
+
+Limpiamos al hacer el repo público (los `[[hosts]]` quedaron como un
+"defaults para los hosts conocidos del autor") pero el modelo correcto es
+que **cada máquina se autodeclara**.
+
+### Modelo
+- `desperta.toml` del repo deja de tener `[[hosts]]`. Solo queda `[runtime]`,
+  `[git]` (vacío por defecto, el usuario rellena con su remote privado), y
+  `[policy]`.
+- El runtime config local (`~/.config/despertaferro/config.toml`) gana una
+  sección `[host]` con la identidad de **esta** máquina:
+  ```toml
+  [host]
+  name = "my-laptop"        # default: hostname
+  platform = "linux"        # default: detectado
+  profiles = ["base", "hyprland"]
+  ```
+- **`desperta init`** o **`desperta bootstrap`** la escribe la primera vez
+  (preguntando perfiles si no se pasa `--profile`).
+
+### Cross-host: `--from` y `--adopt`
+
+Sin lista global, ¿cómo se copia o adopta otro host?
+
+- Cada host pushea su rama `hosts/<name>` al **remote privado del usuario**
+  (definido en `[git] remote`).
+- `desperta bootstrap --from old-laptop` clona el remote y usa su rama
+  `hosts/old-laptop` como fuente de templates / config_paths.
+- `desperta bootstrap --adopt old-laptop` mismo, pero registra esta máquina
+  como `old-laptop` (sobreescribe `[host].name` localmente). Responsabilidad
+  del usuario que las dos máquinas no convivan.
+
+Esto elimina la necesidad de declarar hosts en sitios compartidos. La verdad
+está en las ramas del bare repo del usuario.
+
+### Estado
+- [ ] Eliminar `[[hosts]]` de `desperta.toml` (el del repo).
+- [ ] Añadir `[host]` a `config.Config` (en `config.zig`).
+- [ ] `commandInit` / `commandBootstrap` escriben `[host]` al primer arranque.
+- [ ] `commandStatus` muestra el `[host]` activo.
+- [ ] `--from` / `--adopt` resuelven contra el remote git, no contra
+      `m.findHost(name)`.
+
+---
+
 ## Orden recomendado
 
-1. **Releases primero** — quita la dependencia de Zig en máquinas cliente,
-   beneficio inmediato para cualquier nueva instalación.
+1. **Releases (#1)** — quita la dependencia de Zig en máquinas cliente,
+   beneficio inmediato.
 2. **Comandos location-independent (#4)** — base limpia para todo lo demás;
-   evita que `sync` y otros futuros comandos hereden el problema.
-3. **`desperta sync` (#3)** — cierra el ciclo principal (bootstrap → track →
-   sync → re-instalar en otra máquina). Sin esto, el bare repo es "write-only"
-   en máquinas reales.
-4. **Linger (#2)** — quality-of-life, no bloqueante. Se puede hacer en
-   cualquier momento.
+   evita que el resto herede el problema cwd-relativo.
+3. **Package management v2 (#5)** — el cambio arquitectónico más grande; toca
+   bootstrap, list, install. Definir la DB antes de implementar sync simplifica
+   las cosas (sync puede usar el inventario para decidir qué stagear).
+4. **Host config local (#6)** — pequeño cambio adyacente a #5, hacerlos juntos.
+5. **`desperta sync` (#3)** — cierra el ciclo bootstrap → track → sync.
+6. **Linger (#2)** — quality-of-life independiente, en cualquier momento.
 
 ## No-goals para esta fase
 
