@@ -98,47 +98,86 @@ Phase 5.5 (entre `deploy dotfiles` y `post-install`):
 ### Motivación
 Después de `bootstrap` o de modificar dotfiles a mano y registrarlos con
 `desperta track`, los cambios están en el git index del bare repo (`status`
-los reporta como `clean`), pero **nunca se commitean ni se pushean** al remote.
+los reporta como `clean`), pero **nunca se commitean ni se pushean** a ningún
+remote. Hoy el bare repo es local-only.
+
 El usuario debería poder cerrar el ciclo con un comando:
 
 ```
-desperta sync                  # snapshot → commit → push
-desperta sync --commit-only    # sin push
+desperta sync                  # re-stage → commit → push
+desperta sync --commit-only    # sin push (commit local)
 desperta sync --message "..."  # mensaje custom
 ```
 
+### Modelo de repos — clarificación importante
+
+Conviven dos repos completamente independientes:
+
+| Repo | Path | Qué guarda | Quién lo configura |
+|---|---|---|---|
+| **Project repo** (este código) | `~/.local/share/despertaferro/` ↔ `github.com/jllopis/despertaferro` | Código de desperta, plantillas en `dotfiles/default/`, catálogo en `config/packages.toml` | El proyecto. La URL **no se configura** en el manifest: el binario sabe de dónde lo clonaron. |
+| **Dotfiles repo del usuario** | `~/.local/state/despertaferro/repo.git` (bare) | Los dotfiles **reales** del usuario en cada host, una rama por hostname | El usuario, vía `[git] remote` en `desperta.toml`. **Privado por defecto** porque los dotfiles pueden tener datos personales. |
+
+Por eso `desperta.toml` solo expone **un** remote (`[git] remote`), no dos.
+La URL del proyecto es implícita.
+
+### Modelo de ramas
+
+Una rama por máquina, derivada del hostname:
+
+```
+hosts/<hostname>          # bare repo: tracking dotfiles de un host concreto
+```
+
+**Importante**: no hay `host_branch_prefix` configurable y los `[[hosts]]` del
+manifest **no declaran `branch`**. El código siempre usa `hosts/<name>`.
+Antes existían esos campos (`host_branch_prefix`, `base_branch`,
+`default_branch`, `[[hosts]] branch`) — eliminados porque eran código muerto y
+podían generar paths como `hosts/hosts/<name>` si alguien los combinaba.
+
 ### Semántica
-1. Re-stagear todo lo de `tracked-paths.txt` (recoge modificaciones desde
-   último snapshot).
-2. Si no hay cambios respecto al último commit → "nothing to sync".
-3. `git commit` en el bare repo con autor/email del `~/.gitconfig` o env
-   `GIT_AUTHOR_*`. Mensaje:
-   - Default: `"sync: <hostname> @ <ISO timestamp>"` (no se inventa, es info verificable).
+1. Resolver `remote` del manifest. Si no hay → solo commit local + warn.
+2. Abrir el bare repo y leer el index actual (re-staging ya lo hace `bootstrap`
+   phase 7; aquí solo si hay cambios respecto al index actual).
+3. Si no hay cambios respecto al último commit → "nothing to sync".
+4. `git commit` con autor/email del `~/.gitconfig` (o env `GIT_AUTHOR_*`).
+   - Mensaje default: `"sync: <hostname> @ <ISO timestamp>"`.
    - Custom: `--message "..."`.
-4. `git push origin hosts/<hostname>` al remote del `desperta.toml` si está
-   definido.
-5. Imprimir resultado: commit SHA + push status.
+5. Si `remote` configurado y no es `--commit-only`:
+   - Configurar `origin` en el bare repo si no existe.
+   - `git push origin hosts/<hostname>`.
+6. Imprimir: commit SHA + push status.
 
 ### Implementación
-- `commandSync` existe ya como stub — extenderlo, no recrear.
+- Extender el `commandSync` actual (es un stub mínimo hoy).
 - Reusar `git_backend.createCommit` (ya implementado y probado en tests).
-- Push: por ahora invocar `git push` como subprocess (más simple que SMTP-style
-  git wire protocol nativo). Documentar que requiere SSH key configurada.
+- Push: invocar `git` binario como subprocess inicialmente (más simple que
+  reimplementar el wire protocol nativamente). Documentar que requiere SSH key.
+- Reusar `[git] use_git_binary` para forzar fallback al `git` del sistema en
+  todas las operaciones si el usuario lo prefiere.
 
 ### Riesgos
-- **Auth**: si el remote es SSH y la key requiere passphrase, el push pedirá
-  passphrase. Aceptable inicialmente; documentar.
-- **Conflictos**: dos máquinas pusheando a la misma rama `hosts/<X>` no
-  conflictan si son hostnames distintos. Si el usuario adopt`a un host con
-  `--adopt`, debería cerrarse el otro antes (no es algo a forzar en código).
+- **Auth SSH con passphrase**: si la key requiere passphrase, el push se
+  bloquea pidiéndola. Aceptable inicialmente; documentar.
+- **Repo público accidental**: el bare repo aún no enlaza con ningún remote en
+  `init`. Asegurarse de que `sync` muestre la URL antes del primer push y
+  pida confirmación si parece pública (heurística: contiene `github.com` y no
+  está marcado como privado en el manifest).
+- **Conflictos entre máquinas**: dos máquinas con el mismo hostname pushearían
+  a la misma rama. `--adopt <host>` ya cubre el caso intencional; el accidental
+  (dos máquinas con el mismo `$HOSTNAME`) es responsabilidad del usuario.
 
 ### Estado
-- [ ] Verificar qué hace hoy `commandSync` (probablemente solo lee
-  tracked-paths.txt y stagea — duplicado con Phase 7 ya).
+- [ ] Decidir si `desperta init` ya configura `origin` o si lo hace `sync` al
+      primer push.
+- [ ] Aviso explícito antes del primer push (URL del remote, modo público vs
+      privado heurístico).
 - [ ] Implementar commit step usando `git_backend.createCommit`.
 - [ ] Implementar push step (subprocess `git push`).
 - [ ] Flags `--commit-only`, `--message`.
 - [ ] Test con remote local (`file://`) en suite.
+- [x] Limpiar campos obsoletos del manifest (`host_branch_prefix`,
+      `base_branch`, `default_branch`, `[[hosts]] branch`).
 
 ---
 

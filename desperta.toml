@@ -10,10 +10,11 @@ config_dir = "${XDG_CONFIG_HOME:-${HOME}/.config}/despertaferro"
 cache_dir = "${XDG_CACHE_HOME:-${HOME}/.cache}/despertaferro"
 
 [git]
-remote = "git@github.com:jllopis/despertaferro.git"
-default_branch = "main"
-host_branch_prefix = "hosts/"
-base_branch = "base"
+# Optional. Where `desperta sync` pushes this host's dotfiles branch.
+# Recommend a PRIVATE repo — your tracked dotfiles will be pushed as
+# `hosts/<hostname>` and may contain personal data. Leave commented to
+# work locally only (no push).
+# remote = "git@github.com:youruser/your-dotfiles.git"
 use_git_binary = false
 
 [policy]
@@ -25,15 +26,14 @@ require_snapshot_before_apply = true
 denylist = "config/denylist.txt"
 tracked_paths = "config/tracked-paths.txt"
 
+# Each host's branch is always `hosts/<name>` — derived in code.
 [[hosts]]
 name = "gl2arch"
-branch = "hosts/gl2arch"
 platform = "linux"
 profiles = ["base", "arch", "hyprland"]
 
 [[hosts]]
 name = "NewCO-Butterfly"
-branch = "hosts/NewCO-Butterfly"
 platform = "macos"
 profiles = ["base", "macos", "work"]
 

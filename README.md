@@ -61,6 +61,26 @@ bare Git repo at `$XDG_STATE_HOME/despertaferro/repo.git`. `desperta snapshot`
 copies them out for inspection; `desperta status` reports drift between
 worktree and index.
 
+### Two repos, not one
+
+There are two separate Git repos in play and it's important to keep them apart:
+
+- **The project repo** (this one). Holds the desperta source, dotfile
+  templates, and package catalog. Cloned by `install.sh` into
+  `~/.local/share/despertaferro`.
+- **Your personal dotfiles repo** (created locally by `desperta init` /
+  `bootstrap` at `~/.local/state/despertaferro/repo.git`). This is the bare
+  Git repo that holds *your actual deployed configs*, one branch per host
+  (`hosts/<hostname>`).
+
+Today the personal dotfiles repo is **local only** — nothing is pushed to a
+remote yet. To sync across machines you'll set `[git] remote = "..."` in
+`desperta.toml` (pointing at a **private** repo of your own) and run
+`desperta sync` (coming — see `planning/next-phase.md`).
+
+Until `desperta sync` ships, use the local snapshot/index for inspection and
+optionally push the bare repo manually with `git -C ~/.local/state/despertaferro/repo.git push <url> hosts/<hostname>`.
+
 ## Common commands
 
 ```sh

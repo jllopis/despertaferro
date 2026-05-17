@@ -189,9 +189,27 @@ The denylist is consulted at every `track` and at index staging.
 desperta sync [--apply] [--json]
 ```
 
-Re-reads `tracked-paths.txt` and stages everything into the index. Today this
-overlaps with bootstrap phase 7; in a future iteration `sync` will also commit
-and push to the remote (see `planning/next-phase.md`).
+Re-reads `tracked-paths.txt` and stages everything into the index of the
+**personal dotfiles bare repo** at `~/.local/state/despertaferro/repo.git`.
+Today this overlaps with `bootstrap` phase 7.
+
+In the next iteration (see `planning/next-phase.md`) `sync` will also commit
+and push to a remote set in `desperta.toml`:
+
+```toml
+[git]
+remote = "git@github.com:youruser/your-dotfiles.git"   # PRIVATE recommended
+```
+
+The push always targets the branch `hosts/<hostname>` — one branch per
+machine, no manifest field controls this.
+
+> **Note**: there are two distinct repos. The *project repo* (this codebase)
+> is cloned by `install.sh` and lives under `~/.local/share/despertaferro`.
+> The *personal dotfiles repo* is a separate bare repo under
+> `~/.local/state/despertaferro/repo.git`. The remote in `desperta.toml`
+> applies to the personal repo, not the project. The project's location is
+> implicit (the binary knows where it was built from).
 
 ---
 

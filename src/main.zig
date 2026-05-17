@@ -140,9 +140,12 @@ fn commandStatus(
         .branch => |branch| {
             try out.print("active branch: {s}\n", .{branch});
             // Show profiles for the active host from manifest.
+            // Each host's branch is always `hosts/<name>`.
             if (m.hosts) |hs| {
                 for (hs) |h| {
-                    if (std.mem.eql(u8, h.branch, branch)) {
+                    const expected = try std.fmt.allocPrint(allocator, "hosts/{s}", .{h.name});
+                    defer allocator.free(expected);
+                    if (std.mem.eql(u8, expected, branch)) {
                         try out.print("host: {s} ({s})  profiles:", .{ h.name, h.platform });
                         for (h.profiles) |p| try out.print(" {s}", .{p});
                         try out.print("\n", .{});

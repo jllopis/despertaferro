@@ -17,17 +17,13 @@ pub const RuntimeSection = struct {
 };
 
 pub const GitSection = struct {
+    // Optional. Where `desperta sync` pushes this host's dotfiles branch.
+    // The branch is always `hosts/<hostname>` — no manifest field controls it.
     remote: ?[]const u8 = null,
-    default_branch: ?[]const u8 = null,
-    host_branch_prefix: ?[]const u8 = null,
-    base_branch: ?[]const u8 = null,
     use_git_binary: bool = false,
 
     pub fn deinit(self: GitSection, allocator: std.mem.Allocator) void {
         if (self.remote) |s| allocator.free(s);
-        if (self.default_branch) |s| allocator.free(s);
-        if (self.host_branch_prefix) |s| allocator.free(s);
-        if (self.base_branch) |s| allocator.free(s);
     }
 };
 
@@ -49,13 +45,11 @@ pub const PolicySection = struct {
 
 pub const HostConfig = struct {
     name: []const u8,
-    branch: []const u8,
     platform: []const u8,
     profiles: []const []const u8,
 
     pub fn deinit(self: HostConfig, allocator: std.mem.Allocator) void {
         allocator.free(self.name);
-        allocator.free(self.branch);
         allocator.free(self.platform);
         for (self.profiles) |p| allocator.free(p);
         allocator.free(self.profiles);
@@ -182,7 +176,6 @@ fn parseBool(s: []const u8) bool {
 fn flushHost(
     allocator: std.mem.Allocator,
     cur_name: *?[]const u8,
-    cur_branch: *?[]const u8,
     cur_platform: *?[]const u8,
     cur_profiles: *std.ArrayList([]const u8),
     hosts: *std.ArrayList(HostConfig),
@@ -194,12 +187,10 @@ fn flushHost(
     }
     try hosts.append(allocator, .{
         .name = cur_name.* orelse try allocator.dupe(u8, ""),
-        .branch = cur_branch.* orelse try allocator.dupe(u8, ""),
         .platform = cur_platform.* orelse try allocator.dupe(u8, ""),
         .profiles = profiles_slice,
     });
     cur_name.* = null;
-    cur_branch.* = null;
     cur_platform.* = null;
 }
 
@@ -215,7 +206,6 @@ fn parse(
     var section: Section = .root;
 
     var cur_name: ?[]const u8 = null;
-    var cur_branch: ?[]const u8 = null;
     var cur_platform: ?[]const u8 = null;
     var cur_profiles = std.ArrayList([]const u8).empty;
     var in_host = false;
@@ -229,7 +219,6 @@ fn parse(
     // Always clean up any partially-built host fields.
     defer {
         if (cur_name) |s| allocator.free(s);
-        if (cur_branch) |s| allocator.free(s);
         if (cur_platform) |s| allocator.free(s);
         for (cur_profiles.items) |p| allocator.free(p);
         cur_profiles.deinit(allocator);
@@ -242,7 +231,7 @@ fn parse(
 
         if (std.mem.startsWith(u8, trimmed, "[[")) {
             if (in_host) {
-                try flushHost(allocator, &cur_name, &cur_branch, &cur_platform, &cur_profiles, &hosts);
+                try flushHost(allocator, &cur_name, &cur_platform, &cur_profiles, &hosts);
                 in_host = false;
             }
             if (std.mem.eql(u8, trimmed, "[[hosts]]")) {
@@ -254,7 +243,7 @@ fn parse(
 
         if (trimmed[0] == '[') {
             if (in_host) {
-                try flushHost(allocator, &cur_name, &cur_branch, &cur_platform, &cur_profiles, &hosts);
+                try flushHost(allocator, &cur_name, &cur_platform, &cur_profiles, &hosts);
                 in_host = false;
             }
             section = if (std.mem.eql(u8, trimmed, "[runtime]"))
@@ -310,18 +299,11 @@ fn parse(
                 if (std.mem.eql(u8, key, "remote")) {
                     if (m.git.remote) |s| allocator.free(s);
                     m.git.remote = try allocator.dupe(u8, val);
-                } else if (std.mem.eql(u8, key, "default_branch")) {
-                    if (m.git.default_branch) |s| allocator.free(s);
-                    m.git.default_branch = try allocator.dupe(u8, val);
-                } else if (std.mem.eql(u8, key, "host_branch_prefix")) {
-                    if (m.git.host_branch_prefix) |s| allocator.free(s);
-                    m.git.host_branch_prefix = try allocator.dupe(u8, val);
-                } else if (std.mem.eql(u8, key, "base_branch")) {
-                    if (m.git.base_branch) |s| allocator.free(s);
-                    m.git.base_branch = try allocator.dupe(u8, val);
                 } else if (std.mem.eql(u8, key, "use_git_binary")) {
                     m.git.use_git_binary = parseBool(val);
                 }
+                // Older fields (default_branch, host_branch_prefix, base_branch)
+                // are silently ignored; the active branch is always hosts/<hostname>.
             },
             .policy => {
                 const val = unquote(raw_val);
@@ -349,9 +331,6 @@ fn parse(
                 if (std.mem.eql(u8, key, "name")) {
                     if (cur_name) |s| allocator.free(s);
                     cur_name = try allocator.dupe(u8, val);
-                } else if (std.mem.eql(u8, key, "branch")) {
-                    if (cur_branch) |s| allocator.free(s);
-                    cur_branch = try allocator.dupe(u8, val);
                 } else if (std.mem.eql(u8, key, "platform")) {
                     if (cur_platform) |s| allocator.free(s);
                     cur_platform = try allocator.dupe(u8, val);
@@ -362,12 +341,13 @@ fn parse(
                     defer allocator.free(items);
                     try cur_profiles.appendSlice(allocator, items);
                 }
+                // `branch` is silently ignored — always `hosts/<name>`.
             },
         }
     }
 
     if (in_host) {
-        try flushHost(allocator, &cur_name, &cur_branch, &cur_platform, &cur_profiles, &hosts);
+        try flushHost(allocator, &cur_name, &cur_platform, &cur_profiles, &hosts);
     }
 
     m.hosts = try hosts.toOwnedSlice(allocator);
@@ -414,13 +394,11 @@ test "parse full manifest" {
         \\
         \\[[hosts]]
         \\name = "box1"
-        \\branch = "hosts/box1"
         \\platform = "linux"
         \\profiles = ["base", "arch"]
         \\
         \\[[hosts]]
         \\name = "box2"
-        \\branch = "hosts/box2"
         \\platform = "macos"
         \\profiles = ["base", "macos"]
     ;
