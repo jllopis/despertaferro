@@ -1559,7 +1559,7 @@ fn printHelp(out: *std.Io.Writer) !void {
         \\package management:
         \\  desperta list [--host <profile>]
         \\  desperta install [--apply] [--host <profile>]
-        \\  desperta bootstrap [--apply] [--host <name>] [--from <host>|--adopt <host>]
+        \\  desperta bootstrap [--apply] [--profile <name>] [--from <host>|--adopt <host>] [--force]
         \\
         \\services:
         \\  desperta service install [--apply]
@@ -1571,12 +1571,14 @@ fn printHelp(out: *std.Io.Writer) !void {
         \\  desperta doctor
         \\
         \\flags:
-        \\  --apply        execute changes (default is dry-run)
-        \\  --json         structured JSON output
-        \\  --host         specify host name or profile
-        \\  --from <host>  copy dotfile templates from another host
-        \\  --adopt <host> take ownership of another host's identity
-        \\  --system       target system scope (vs user scope)
+        \\  --apply           execute changes (default is dry-run)
+        \\  --json            structured JSON output
+        \\  --host <name>     specify host name (lookup in manifest)
+        \\  --profile <name>  bypass manifest, use a specific profile directly
+        \\  --from <host>     copy dotfile templates from another host
+        \\  --adopt <host>    take ownership of another host's identity
+        \\  --force           overwrite existing dotfiles in phase 5
+        \\  --system          target system scope (vs user scope)
         \\
         \\release build:
         \\  zig build -Dtarget=x86_64-linux-musl -Doptimize=ReleaseSafe

@@ -132,14 +132,29 @@ desperta bootstrap --apply --profile test
 
 Cosas que el script de instalación debe contemplar, deducidas de las pruebas:
 
-- [ ] Verificar espacio en disco antes de empezar (`df -h /` > 10 GB para perfil completo).
-- [ ] No asumir `$SHELL`/`$USER` poblados — derivar de `getpwuid` o `whoami`.
-- [ ] Clonar repo a `~/.local/share/despertaferro` (escribible) y `cd` ahí antes de `desperta bootstrap`.
-- [ ] Mensaje claro si pacman aborta por disco/red (capturar exit code y reportar).
-- [ ] Tras `chsh`: avisar al usuario de re-login (el cambio no aplica hasta nueva sesión).
-- [ ] Tras añadir grupos (docker, etc.): mismo aviso de re-login o sugerir `newgrp`.
+- [x] Verificar espacio en disco antes de empezar (`df -h /` > 10 GB para perfil completo).
+- [x] No asumir `$SHELL`/`$USER` poblados — derivar de `getpwuid` o `whoami`.
+- [x] Clonar repo a `~/.local/share/despertaferro` (escribible) y `cd` ahí antes de `desperta bootstrap`.
+- [x] Mensaje claro si pacman aborta por disco/red (capturar exit code y reportar).
+- [x] Tras `chsh`: avisar al usuario de re-login (el cambio no aplica hasta nueva sesión).
+- [x] Tras añadir grupos (docker, etc.): mismo aviso de re-login o sugerir `newgrp`.
 - [ ] Linger systemd-user: `loginctl enable-linger $USER` si se van a habilitar servicios `--user`.
-- [ ] Bootstrap actual **no produce snapshot real** — los dotfiles desplegados no quedan en el git index. El install.sh debería terminar con un `desperta sync` (cuando exista) o avisar al usuario.
+- [x] Bootstrap ahora **produce snapshot real** — Phase 7 stagea al index. ✅
+
+## Estado final
+
+`scripts/install.sh` validado end-to-end en contenedor `cachyos/cachyos` con repo
+público. Listo para usar en VM real o instalación CachyOS Minimal nativa con:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/jllopis/despertaferro/master/scripts/install.sh | bash
+```
+
+Para acotar a un subset de paquetes durante test/CI:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/jllopis/despertaferro/master/scripts/install.sh | bash -s -- --profile test
+```
 
 ---
 
@@ -158,6 +173,35 @@ Cosas que el script de instalación debe contemplar, deducidas de las pruebas:
   - Phase 7 trackeó tanto archivos individuales (desde dotfiles) como directorios (desde `config_paths` cuando existen → ej. `~/.config/zsh`, `~/.config/nvim`)
   - Mensaje final de re-login presente
   - `run.sh shell` con copia previa a `~/.local/share/despertaferro` permite tracking writable
+
+### Iteración 4 — 2026-05-17 — `install.sh` end-to-end desde repo público
+
+- Contexto: tras hacer el repo público en GitHub, validar el flujo completo desde una imagen vanilla `cachyos/cachyos`.
+- Comando:
+  ```sh
+  docker run --rm -it --platform linux/amd64 \
+    -v "$PWD/scripts/install.sh:/tmp/install.sh:ro" \
+    cachyos/cachyos bash -c '
+      pacman -Syu --noconfirm sudo &&
+      useradd -m -s /bin/bash test &&
+      echo "test:test" | chpasswd &&
+      echo "test ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/test &&
+      su - test -c "bash /tmp/install.sh --profile test"
+    '
+  ```
+- Resultado: ✅ todo el flujo completa correctamente
+- Pasos verificados:
+  1. Pre-flight (uid, sudo, pacman, disco 35G, user/home derivados sin $USER)
+  2. pacman base-devel + curl + git (cached, "nothing to do")
+  3. yay instalado desde AUR
+  4. `git clone https://github.com/jllopis/despertaferro.git` desde repo público
+  5. Zig instalado desde pacman, `zig build -Doptimize=ReleaseSafe` exitoso
+  6. `desperta bootstrap --apply --profile test` corre las 8 fases
+  7. 28 paquetes pacman instalados, 24 dotfiles desplegados, 31 paths staged al index
+- **Único issue cosmético** (Phase 6 chsh): `unix_chkpwd: password check failed for user (test)`.
+  - Causa: PAM en el contenedor Docker no valida correctamente el password puesto vía `chpasswd`. Quirk de Docker, no del script.
+  - En máquina real (VM o instalación nativa), el usuario teclea su password y `chsh` funciona.
+  - La detección de #15 funcionó: Phase 8 NO dijo "shell changed" porque `runPostCmd` devolvió `false`.
 
 ### Iteración 3 — 2026-05-17 — bootstrap → snapshot → status end-to-end
 
