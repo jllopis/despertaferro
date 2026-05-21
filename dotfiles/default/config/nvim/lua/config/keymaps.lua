@@ -70,6 +70,11 @@ map("n", "<leader>o", ":below 10sp term://$SHELL<cr>i", { noremap = true, silent
 -- OTHERS
 map("n", "<leader>f", vim.lsp.buf.format, opts)
 map("n", "<leader><leader>", function() vim.cmd("so") end, opts)
+map("n", "<leader>w", function()
+  vim.opt.wrap = not vim.opt.wrap:get()
+  local status = vim.opt.wrap:get() and "enabled" or "disabled"
+  vim.notify("Word wrap " .. status)
+end, opts)
 
 -- Clear search highlight
 map("n", "<Esc>", "<cmd>nohlsearch<cr>", opts)
