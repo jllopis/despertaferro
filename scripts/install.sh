@@ -10,7 +10,7 @@
 #   2. install base tools (git, base-devel, curl)
 #   3. install yay (AUR helper) if missing
 #   4. clone despertaferro to ~/.local/share/despertaferro
-#   5. build the desperta binary from source (release binaries WIP)
+#   5. download pre-built binary or build from source
 #   6. run `desperta bootstrap --apply`  (forwards --profile and --force if given)
 #   7. print a re-login reminder + manual steps
 #
@@ -117,16 +117,37 @@ fi
 BIN="$HOMEDIR/.local/bin/desperta"
 mkdir -p "$(dirname "$BIN")"
 
-# Release binaries aren't published yet; build from source.
-# When releases land, prepend a curl attempt here and fall through to build on miss.
-log "building desperta from source (zig build)"
-if ! command -v zig &>/dev/null; then
-  log "installing zig"
-  sudo pacman -S --noconfirm --needed zig || die "zig install failed"
+# Try downloading pre-built release binary first
+ARCH=$(uname -m)
+case "$ARCH" in
+  x86_64)  RELEASE_ARCH="x86_64" ;;
+  aarch64) RELEASE_ARCH="aarch64" ;;
+  *)       RELEASE_ARCH="" ;;
+esac
+
+if [[ -n "$RELEASE_ARCH" ]]; then
+  log "attempting to download pre-built binary for $ARCH"
+  RELEASE_URL="https://github.com/jllopis/despertaferro/releases/latest/download/desperta-linux-${RELEASE_ARCH}"
+  if curl -fsSL --max-time 30 "$RELEASE_URL" -o "$BIN"; then
+    chmod +x "$BIN"
+    log "downloaded pre-built binary"
+  else
+    warn "release binary not available — falling back to source build"
+    unset RELEASE_URL
+  fi
 fi
-(cd "$REPO" && zig build -Doptimize=ReleaseSafe) || die "zig build failed"
-cp "$REPO/zig-out/bin/desperta" "$BIN"
-chmod +x "$BIN"
+
+# Fallback: build from source if download failed or unsupported arch
+if [[ ! -x "$BIN" ]]; then
+  log "building desperta from source (zig build)"
+  if ! command -v zig &>/dev/null; then
+    log "installing zig"
+    sudo pacman -S --noconfirm --needed zig || die "zig install failed"
+  fi
+  (cd "$REPO" && zig build -Doptimize=ReleaseSafe) || die "zig build failed"
+  cp "$REPO/zig-out/bin/desperta" "$BIN"
+  chmod +x "$BIN"
+fi
 
 # --- run bootstrap ----------------------------------------------------------
 export PATH="$HOMEDIR/.local/bin:$PATH"

@@ -133,6 +133,25 @@ zig build test                                     # run unit tests
 
 Requires Zig 0.16. `install.sh` installs it for you on Arch-based systems.
 
+## Pre-built releases
+
+Binary releases are published on [GitHub Releases](https://github.com/jllopis/despertaferro/releases) for Linux targets:
+
+- `desperta-linux-x86_64` — x86_64 with musl libc (runs on any Linux)
+- `desperta-linux-aarch64` — ARM64 with musl libc (runs on any Linux)
+
+`install.sh` automatically downloads and uses pre-built binaries when available, skipping the Zig toolchain install and compilation step (~30s saved, ~120 MB less disk usage).
+
+To manually download a release:
+
+```sh
+ARCH=$(uname -m)  # x86_64 or aarch64
+curl -fsSL \
+  "https://github.com/jllopis/despertaferro/releases/download/v0.1.0/desperta-linux-${ARCH}" \
+  -o ~/.local/bin/desperta
+chmod +x ~/.local/bin/desperta
+```
+
 ## Testing in a Docker container
 
 A ready-made Dockerfile for end-to-end testing on CachyOS lives in `docker/`:
@@ -170,7 +189,5 @@ The bootstrap path is operational and validated end-to-end on CachyOS:
 - Idempotent re-runs (skips re-installs, re-deploys, re-chsh)
 
 Pending (see `planning/next-phase.md`):
-
-- Pre-built binary releases (skip Zig install on clients)
 - `desperta sync` (commit + push the index to the remote)
 - `loginctl enable-linger` automation for user services
