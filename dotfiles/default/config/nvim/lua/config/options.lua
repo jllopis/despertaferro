@@ -2,6 +2,10 @@
 
 local opt = vim.opt
 
+-- Leader keys
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
+
 -- Display
 opt.number = true
 opt.relativenumber = true
@@ -25,7 +29,3 @@ opt.updatetime = 250
 -- Splits
 opt.splitright = true
 opt.splitbelow = true
-
--- Leader keys
-vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
