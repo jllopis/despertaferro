@@ -12,6 +12,7 @@ const denylist_path = "config/denylist.txt";
 const tracked_paths_path = "config/tracked-paths.txt";
 
 const Flags = struct {
+    repo: ?[]const u8 = null,
     host: ?[]const u8 = null,
     from: ?[]const u8 = null,
     to: ?[]const u8 = null,
@@ -31,6 +32,8 @@ const Flags = struct {
                 f.json = true;
             } else if (eql(arg, "--system")) {
                 f.system = true;
+            } else if (eql(arg, "--repo")) {
+                f.repo = args.next();
             } else if (eql(arg, "--host")) {
                 f.host = args.next();
             } else if (eql(arg, "--from")) {
