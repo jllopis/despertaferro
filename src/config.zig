@@ -125,26 +125,6 @@ pub fn resolveProjectDir(
         return allocator.dupe(u8, path);
     }
 
-    // 4. Fallback: walk up from cwd looking for desperta.toml
-    var arena = std.heap.ArenaAllocator.init(allocator);
-    defer arena.deinit();
-
-    const cwd = try std.fs.cwd().realpathAlloc(arena.allocator(), ".");
-
-    var path = cwd;
-    while (true) {
-        const manifest_path = try std.fmt.allocPrint(arena.allocator(), "{s}/desperta.toml", .{path});
-        if (std.fs.cwd().access(manifest_path, .{})) {
-            return allocator.dupe(u8, path);
-        } else |_| {}
-
-        const parent = std.fs.path.dirname(path);
-        if (parent == null or std.mem.eql(u8, parent.?, path)) {
-            break; // reached root
-        }
-        path = parent.?;
-    }
-
-    // 5. Not found
-    return error.ProjectDirNotFound;
+    // 4. Fallback: assume current directory (for dev usage)
+    return allocator.dupe(u8, ".");
 }

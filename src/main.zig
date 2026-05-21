@@ -7,6 +7,7 @@ const packages = @import("packages.zig");
 const pkgmgr = @import("pkgmgr.zig");
 const services = @import("services.zig");
 const dotfiles = @import("dotfiles.zig");
+const paths = @import("paths.zig");
 
 const denylist_path = "config/denylist.txt";
 const tracked_paths_path = "config/tracked-paths.txt";
@@ -71,7 +72,7 @@ pub fn main(init: std.process.Init) !u8 {
     if (eql(cmd, "help") or eql(cmd, "--help") or eql(cmd, "-h")) {
         try printHelp(out);
     } else if (eql(cmd, "status")) {
-        try commandStatus(out, init.gpa, init.io, init.environ_map);
+        return try commandStatus(&args, out, init.gpa, init.io, init.environ_map);
     } else if (eql(cmd, "track")) {
         return try commandTrack(&args, out, init.gpa, init.io, init.environ_map);
     } else if (eql(cmd, "ignore")) {
@@ -104,15 +105,28 @@ pub fn main(init: std.process.Init) !u8 {
 }
 
 fn commandStatus(
+    args: *std.process.Args.Iterator,
     out: *std.Io.Writer,
     allocator: std.mem.Allocator,
     io: std.Io,
     environ_map: *const std.process.Environ.Map,
-) !void {
+) !u8 {
+    const flags = Flags.parse(args);
+
     var cfg = try config.load(allocator, io, environ_map);
     defer cfg.deinit(allocator);
 
-    var m = try manifest.load(allocator, io, environ_map);
+    const project_dir = config.resolveProjectDir(allocator, environ_map, &cfg, flags.repo) catch |err| {
+        if (err == error.ProjectDirNotFound) {
+            try out.print("ERROR: project directory not found\n", .{});
+            try out.print("  (pass --repo <path> or set DESPERTA_REPO or add project_dir to ~/.config/despertaferro/config.toml)\n", .{});
+            return 1;
+        }
+        return err;
+    };
+    defer allocator.free(project_dir);
+
+    var m = try manifest.loadFrom(allocator, io, environ_map, project_dir);
     defer m.deinit(allocator);
 
     const worktree_path = try resolveWorktreePath(allocator, environ_map, &cfg);
@@ -122,6 +136,7 @@ fn commandStatus(
     defer allocator.free(repo_path);
 
     try out.print("despertaferro runtime\n", .{});
+    try out.print("project: {s}\n", .{project_dir});
     if (m.name) |n| try out.print("manifest: {s} (schema v{d})\n", .{ n, m.schema_version });
     try out.print("worktree: {s}\n", .{worktree_path});
     try out.print("repo path: {s}\n", .{repo_path});
@@ -134,7 +149,7 @@ fn commandStatus(
             error.UnsupportedHead => try out.print("repo: unsupported HEAD\n", .{}),
             else => return err,
         }
-        return;
+        return 0;
     };
     defer repo.deinit(allocator);
 
@@ -167,12 +182,13 @@ fn commandStatus(
             error.UnsupportedIndexVersion => try out.print("worktree status: unsupported index version\n", .{}),
             else => return err,
         }
-        return;
+        return 0;
     };
 
     try out.print("tracked: {d}  clean: {d}  modified: {d}  deleted: {d}\n", .{
         ws.tracked, ws.clean, ws.modified, ws.deleted,
     });
+    return 0;
 }
 
 // Item 1: track validates paths against the denylist before adding.
@@ -187,18 +203,18 @@ fn commandTrack(
 
     // Item 8: parse flags and positional paths in one pass.
     var json = false;
-    var paths = std.ArrayList([]const u8).empty;
-    defer paths.deinit(allocator);
+    var tracked_paths_list = std.ArrayList([]const u8).empty;
+    defer tracked_paths_list.deinit(allocator);
 
     while (args.next()) |arg| {
         if (eql(arg, "--json")) {
             json = true;
         } else {
-            try paths.append(allocator, arg);
+            try tracked_paths_list.append(allocator, arg);
         }
     }
 
-    if (paths.items.len == 0) {
+    if (tracked_paths_list.items.len == 0) {
         if (json) {
             try out.print("{{\"error\":\"missing path\"}}\n", .{});
         } else {
@@ -214,7 +230,7 @@ fn commandTrack(
     var denied = std.ArrayList([]const u8).empty;
     defer denied.deinit(allocator);
 
-    for (paths.items) |p| {
+    for (tracked_paths_list.items) |p| {
         // Item 1: refuse paths that match denylist patterns.
         if (try isDenylisted(allocator, io, p)) {
             try denied.append(allocator, p);

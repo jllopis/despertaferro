@@ -92,7 +92,22 @@ pub fn load(
     io: std.Io,
     environ_map: *const std.process.Environ.Map,
 ) !Manifest {
-    const data = std.Io.Dir.cwd().readFileAlloc(io, "desperta.toml", allocator, .limited(64 * 1024)) catch |err| switch (err) {
+    return loadFrom(allocator, io, environ_map, null);
+}
+
+pub fn loadFrom(
+    allocator: std.mem.Allocator,
+    io: std.Io,
+    environ_map: *const std.process.Environ.Map,
+    project_dir: ?[]const u8,
+) !Manifest {
+    const manifest_path = if (project_dir) |pd|
+        try std.fmt.allocPrint(allocator, "{s}/desperta.toml", .{pd})
+    else
+        allocator.dupe(u8, "desperta.toml") catch unreachable;
+    defer allocator.free(manifest_path);
+
+    const data = std.Io.Dir.cwd().readFileAlloc(io, manifest_path, allocator, .limited(64 * 1024)) catch |err| switch (err) {
         error.FileNotFound => return .{},
         else => return err,
     };
