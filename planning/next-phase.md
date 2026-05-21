@@ -239,15 +239,15 @@ importar.
   sin tener `DESPERTA_REPO` ni runtime config — aceptable, esto es un fix.
 
 ### Estado
-- [ ] Añadir `project_dir` a `config.Config` (`config.zig`).
+- [x] Añadir `project_dir` a `config.Config` (`config.zig`).
+- [x] Helper `resolveProjectDir` con la cascada de 4 niveles (--repo, env, config, cwd).
+- [x] Añadir `--repo <path>` global en `Flags.parse`.
+- [x] Crear `paths.zig` con constantes para rutas del proyecto.
+- [x] Integrar en `commandStatus` para mostrar `project_dir`.
 - [ ] `install.sh` escribe `project_dir` al runtime config tras clonar.
 - [ ] `desperta init` también lo escribe si no existe.
-- [ ] Añadir `--repo <path>` global en `Flags.parse`.
-- [ ] Helper `resolveProjectDir` con la cascada de 5 niveles.
-- [ ] Centralizar las 5 rutas hardcodeadas en `paths.zig` (o constantes).
-- [ ] Mostrar `project_dir` en `status` y `doctor`.
-- [ ] Tests: ejecución desde `cwd` distinto, con env, con flag, con runtime
-      config.
+- [ ] Integrar en otros comandos (doctor, list, install, bootstrap, track).
+- [ ] Tests: ejecución desde `cwd` distinto, con env, con flag, con runtime config.
 
 ### Bonus
 Una vez todos los comandos toman `project_dir` consistentemente, **el usuario
