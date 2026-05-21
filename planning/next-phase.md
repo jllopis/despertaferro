@@ -54,11 +54,11 @@ estático y saltarse el compile. Ventajas:
   threat model personal.
 
 ### Estado
-- [ ] Decidir primer tag y crearlo manualmente.
-- [ ] Escribir `.github/workflows/release.yml`.
-- [ ] Probar generación con un tag de prueba (`v0.0.1-test`).
-- [ ] Actualizar `install.sh` con preferencia por release binary.
-- [ ] Actualizar README con instrucción de release manual.
+- [x] Escribir `.github/workflows/release.yml`.
+- [x] Actualizar `install.sh` con preferencia por release binary.
+- [x] Actualizar README con instrucción de release manual.
+- [ ] Decidir primer tag (`v0.1.0` para estable, `v0.0.1` para test) y crearlo manualmente.
+- [ ] Probar generación con un tag (`git tag v0.0.1-test && git push origin v0.0.1-test`).
 
 ---
 
