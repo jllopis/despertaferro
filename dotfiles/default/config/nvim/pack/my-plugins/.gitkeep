@@ -1,0 +1,8 @@
+Pack directory for vim.pack plugin management.
+
+Subdirectories:
+- start/  : Plugins loaded automatically on startup
+- opt/    : Optional plugins (loaded with :packadd)
+
+Each plugin should be a git submodule or repository clone.
+Example: git clone <plugin-repo> start/<plugin-name>/
