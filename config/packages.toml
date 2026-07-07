@@ -231,6 +231,15 @@ pacman = "sqlite"
 brew = "sqlite"
 check_cmd = "sqlite3"
 
+[[package]]
+id = "fortune-mod"
+description = "Random adage generator"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+pacman = "fortune-mod"
+brew = "fortune"
+check_cmd = "fortune"
+
 # ─── Version control ──────────────────────────────────────────────────────────
 
 [[package]]
@@ -373,6 +382,14 @@ profiles = ["base"]
 platforms = ["linux", "macos"]
 install_script = "curl https://wasmtime.dev/install.sh | bash"
 check_cmd = "wasmtime"
+
+[[package]]
+id = "kulala-ls"
+description = "Language server for HTTP request files"
+profiles = ["base"]
+platforms = ["linux", "macos"]
+skip = "npm install -g @mistweaverco/kulala-ls"
+check_cmd = "kulala-ls"
 
 # ─── Build tools ──────────────────────────────────────────────────────────────
 
