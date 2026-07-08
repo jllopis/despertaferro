@@ -5,6 +5,17 @@ on:
     tags:
       - 'v*'
 
+# Note on Node.js 20 deprecation warnings:
+#   As of Nov 2025 GitHub-hosted runners default to Node.js 24 and warn
+#   when an action declares engines.node = "20" in its own package.json
+#   (https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/).
+#   This affects actions/checkout@v4, actions/upload-artifact@v4,
+#   actions/download-artifact@v4, softprops/action-gh-release@v1, and
+#   korandoru/setup-zig@v1 (the last one we already replaced — see below).
+#   Adding actions/setup-node@v4 does NOT silence the warning, because
+#   that action itself still declares Node 20. The warning goes away
+#   when upstream maintainers publish Node 24-targeted versions.
+
 jobs:
   build-linux:
     strategy:
@@ -17,9 +28,24 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Zig
-        uses: korandoru/setup-zig@v1
-        with:
-          zig-version: 0.16.0
+        # Download the official Zig tarball directly instead of using a
+        # third-party action (supply-chain hygiene). The runner is x86_64
+        # regardless of matrix.target — Zig cross-compiles via -Dtarget.
+        run: |
+          ZIG_VERSION="0.16.0"
+          ZIG_TARBALL="zig-x86_64-linux-${ZIG_VERSION}.tar.xz"
+          ZIG_URL="https://ziglang.org/download/${ZIG_VERSION}/${ZIG_TARBALL}"
+          ZIG_SHA="https://ziglang.org/download/${ZIG_VERSION}/${ZIG_TARBALL}.minisig"
+          curl -fsSL "$ZIG_URL" -o "/tmp/${ZIG_TARBALL}"
+          curl -fsSL "$ZIG_SHA" -o "/tmp/${ZIG_TARBALL}.minisig"
+          # minisign verification is optional; we keep it commented to
+          # avoid pulling another toolchain. Uncomment when needed:
+          #   curl -fsSL https://ziglang.org/download/0.16.0/zig-x86_64-linux-0.16.0.tar.xz.minisig.key -o /tmp/key
+          #   minisign -V -m /tmp/$ZIG_TARBALL -p /tmp/key
+          mkdir -p /tmp/zig
+          tar -xJf "/tmp/${ZIG_TARBALL}" -C /tmp/zig --strip-components=1
+          /tmp/zig/zig version
+          echo "/tmp/zig" >> "$GITHUB_PATH"
 
       - name: Build ${{ matrix.target }}
         run: zig build -Dtarget=${{ matrix.target }} -Doptimize=ReleaseSafe
