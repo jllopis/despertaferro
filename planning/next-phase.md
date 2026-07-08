@@ -57,8 +57,16 @@ estático y saltarse el compile. Ventajas:
 - [x] Escribir `.github/workflows/release.yml`.
 - [x] Actualizar `install.sh` con preferencia por release binary.
 - [x] Actualizar README con instrucción de release manual.
-- [ ] Decidir primer tag (`v0.1.0` para estable, `v0.0.1` para test) y crearlo manualmente.
-- [ ] Probar generación con un tag (`git tag v0.0.1-test && git push origin v0.0.1-test`).
+- [x] Decidir primer tag y crearlo: `v0.1.0` publicado el 2026-07-08
+      (https://github.com/jllopis/despertaferro/releases/tag/v0.1.0).
+- [x] Probar generación con un tag de prueba `v0.1.0-test`: el workflow
+      completa `success` en ~1m 20s, los warnings de Node 20 quedan
+      reducidos a los inevitables sobre `actions/checkout@v4`,
+      `actions/upload-artifact@v4`, `actions/download-artifact@v4` y
+      `softprops/action-gh-release@v1` (upstream, no podemos silenciarlos
+      desde el workflow hasta que los maintainers actualicen a Node 24).
+      El reemplazo de `korandoru/setup-zig@v1` por descarga directa
+      elimina su warning y la dependencia third-party.
 
 ---
 
